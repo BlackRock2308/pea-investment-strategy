@@ -9,10 +9,10 @@ export default function StatBlock({ label, value, sub, accent, large }) {
       >
         {label}
       </div>
-      <div
-        className={`${large ? 'text-4xl' : 'text-2xl'} font-light leading-none tabular-nums font-serif`}
-        style={{ color: accent || COLORS.ink }}
-      >
+    <div
+      className={`${large ? 'text-2xl sm:text-4xl' : 'text-xl sm:text-2xl'} font-light leading-none tabular-nums font-serif`}
+      style={{ color: accent || COLORS.ink }}
+    >
         {value}
       </div>
       {sub && (

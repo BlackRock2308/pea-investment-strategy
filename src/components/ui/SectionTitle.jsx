@@ -12,7 +12,7 @@ export default function SectionTitle({ number, title, subtitle }) {
             {number}
           </span>
         )}
-        <h2 className="text-3xl font-normal font-serif" style={{ color: COLORS.ink }}>
+        <h2 className="text-2xl sm:text-3xl font-normal font-serif" style={{ color: COLORS.ink }}>
           {title}
         </h2>
       </div>
