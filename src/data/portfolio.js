@@ -1,9 +1,9 @@
 import { COLORS } from '../theme/colors';
 
 export const portfolioActual = [
-  { name: 'ESE (S&P 500)', value: 2027.20, pct: 64.6, color: COLORS.navy },
-  { name: 'PAEEM (EM)', value: 692.18, pct: 22.1, color: COLORS.sand },
-  { name: 'Stoxx 600', value: 419.87, pct: 13.4, color: COLORS.forest },
+  { name: 'ESE (S&P 500)', value: 2027.87, pct: 59.2, color: COLORS.navy },
+  { name: 'PAEEM (EM)', value: 686.70, pct: 20.0, color: COLORS.sand },
+  { name: 'Stoxx 600', value: 712.15, pct: 20.8, color: COLORS.forest },
 ];
 
 export const portfolioTarget = [
@@ -13,5 +13,5 @@ export const portfolioTarget = [
   { name: 'Actions dividende Europe', value: 15, color: COLORS.plum, desc: 'Revenu passif croissant' },
 ];
 
-export const TOTAL_CURRENT = 3139.25;
-export const PV_CURRENT = 117.14;
+export const TOTAL_CURRENT = 3426.72;
+export const PV_CURRENT = 105.14;

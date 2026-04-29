@@ -14,7 +14,7 @@ export default function SimulatorView() {
   const [years, setYears] = useState(20);
   const [rate, setRate] = useState(8.5);
 
-  const data = useMemo(() => projectPortfolio(3139, monthly, years, rate), [monthly, years, rate]);
+  const data = useMemo(() => projectPortfolio(3427, monthly, years, rate), [monthly, years, rate]);
   const final = data[data.length - 1];
   const totalApports = final.apports;
   const totalPV = final.plusValue;
@@ -29,7 +29,7 @@ export default function SimulatorView() {
       <SectionTitle
         number="II"
         title="Simulateur de projection"
-        subtitle="Ajuste les paramètres pour visualiser l'effet de la capitalisation composée sur ton PEA. Portefeuille de départ 3 139 €."
+        subtitle="Ajuste les paramètres pour visualiser l'effet de la capitalisation composée sur ton PEA. Portefeuille de départ 3 427 €."
       />
 
       <Card padding="p-5 sm:p-10">

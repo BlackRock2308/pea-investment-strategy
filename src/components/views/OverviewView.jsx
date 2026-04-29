@@ -10,9 +10,9 @@ import Badge from '../ui/Badge';
 import CustomTooltip from '../ui/CustomTooltip';
 
 const rebalanceData = [
-  { zone: 'États-Unis', actuel: 65, cible: 40, delta: -25 },
-  { zone: 'Europe (ETF)', actuel: 13, cible: 30, delta: +17 },
-  { zone: 'Émergents', actuel: 22, cible: 15, delta: -7 },
+  { zone: 'États-Unis', actuel: 59, cible: 40, delta: -19 },
+  { zone: 'Europe (ETF)', actuel: 21, cible: 30, delta: +9 },
+  { zone: 'Émergents', actuel: 20, cible: 15, delta: -5 },
   { zone: 'Actions EU', actuel: 0, cible: 15, delta: +15 },
 ];
 
@@ -31,7 +31,7 @@ export default function OverviewView() {
           <StatBlock label="Valeur actuelle" value={fmtEur(TOTAL_CURRENT)} large accent={COLORS.ink} />
         </div>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock label="Plus-value latente" value={`+${fmtEur(PV_CURRENT)}`} sub="+3,86 %" accent={COLORS.forest} large />
+          <StatBlock label="Plus-value latente" value={`+${fmtEur(PV_CURRENT)}`} sub="+3,17 %" accent={COLORS.forest} large />
         </div>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
           <StatBlock label="Lignes actuelles" value="3" sub="ETF UCITS capitalisants" large />
@@ -49,7 +49,7 @@ export default function OverviewView() {
             <h3 className="text-lg font-normal font-serif" style={{ color: COLORS.ink }}>
               Allocation actuelle
             </h3>
-            <Badge color={COLORS.rust}>65 % USA</Badge>
+            <Badge color={COLORS.rust}>59 % USA</Badge>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
