@@ -39,22 +39,25 @@ export default function App() {
       <header className="border-b border-border" style={{ backgroundColor: COLORS.paper }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-            <div>
-              <div
-                className="text-[10px] uppercase tracking-[0.3em] font-medium mb-1 sm:mb-2"
-                style={{ color: COLORS.sand }}
-              >
-                Rapport stratégique — Avril 2026
+            <div className="flex items-center gap-4 sm:gap-5">
+              <img src="/omaad-pea.svg" alt="OMAAD PEA" className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 flex-shrink-0" />
+              <div>
+                <div
+                  className="text-[10px] uppercase tracking-[0.3em] font-medium mb-1 sm:mb-2"
+                  style={{ color: COLORS.sand }}
+                >
+                  Rapport stratégique — Avril 2026
+                </div>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal font-serif" style={{ color: COLORS.ink }}>
+                  Portefeuille PEA
+                  <span className="block sm:inline text-lg sm:text-2xl sm:ml-3 italic" style={{ color: COLORS.inkLight }}>
+                    stratégie long terme
+                  </span>
+                </h1>
+                <p className="text-xs sm:text-sm mt-1 sm:mt-2" style={{ color: COLORS.inkMid }}>
+                  Profil dynamique 29 ans · Horizon 15–20 ans · DCA 300 €/mois
+                </p>
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal font-serif" style={{ color: COLORS.ink }}>
-                Portefeuille PEA
-                <span className="block sm:inline text-lg sm:text-2xl sm:ml-3 italic" style={{ color: COLORS.inkLight }}>
-                  stratégie long terme
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm mt-1 sm:mt-2" style={{ color: COLORS.inkMid }}>
-                Profil dynamique 29 ans · Horizon 15–20 ans · DCA 300 €/mois
-              </p>
             </div>
             <div className="hidden md:block text-right">
               <div className="text-[10px] uppercase tracking-[0.2em] font-medium" style={{ color: COLORS.inkLight }}>
