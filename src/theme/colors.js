@@ -1,19 +1,20 @@
 export const COLORS = {
-  ink: '#0F1419',
-  inkMid: '#3D4852',
-  inkLight: '#7A8691',
-  cream: '#FAF7F2',
-  creamDark: '#F0EADF',
-  paper: '#FFFFFF',
-  border: '#E8E1D4',
-  navy: '#1E3A5F',
-  navyLight: '#2D5280',
-  sand: '#C9A961',
-  sandLight: '#E2C88A',
-  sandDark: '#A6893C',
-  forest: '#3B6B4A',
-  rust: '#B54B3C',
-  plum: '#6B4267',
+  ink: 'var(--color-ink)',
+  inkMid: 'var(--color-ink-mid)',
+  inkLight: 'var(--color-ink-light)',
+  cream: 'var(--color-cream)',
+  creamDark: 'var(--color-cream-dark)',
+  paper: 'var(--color-paper)',
+  border: 'var(--color-border)',
+  navy: 'var(--color-navy)',
+  navyLight: 'var(--color-navy-light)',
+  sand: 'var(--color-sand)',
+  sandLight: 'var(--color-sand-light)',
+  sandDark: 'var(--color-sand-dark)',
+  forest: 'var(--color-forest)',
+  rust: 'var(--color-rust)',
+  plum: 'var(--color-plum)',
+  rowAlt: 'var(--color-row-alt)',
 };
 
 export const CHART_COLORS = [
@@ -24,3 +25,7 @@ export const CHART_COLORS = [
   COLORS.rust,
   COLORS.navyLight,
 ];
+
+export function colorWithAlpha(cssVar, alpha) {
+  return `color-mix(in srgb, ${cssVar} ${Math.round(alpha * 100)}%, transparent)`;
+}

@@ -1,36 +1,37 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
-        serif: ['Georgia', '"Times New Roman"', 'serif'],
-        sans: ['ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
+        serif: ['Playfair Display', 'Georgia', '"Times New Roman"', 'serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
       },
       colors: {
         ink: {
-          DEFAULT: '#0F1419',
-          mid: '#3D4852',
-          light: '#7A8691',
+          DEFAULT: 'var(--color-ink)',
+          mid: 'var(--color-ink-mid)',
+          light: 'var(--color-ink-light)',
         },
         cream: {
-          DEFAULT: '#FAF7F2',
-          dark: '#F0EADF',
+          DEFAULT: 'var(--color-cream)',
+          dark: 'var(--color-cream-dark)',
         },
-        paper: '#FFFFFF',
-        border: '#E8E1D4',
+        paper: 'var(--color-paper)',
+        border: 'var(--color-border)',
         navy: {
-          DEFAULT: '#1E3A5F',
-          light: '#2D5280',
+          DEFAULT: 'var(--color-navy)',
+          light: 'var(--color-navy-light)',
         },
         sand: {
-          DEFAULT: '#C9A961',
-          light: '#E2C88A',
-          dark: '#A6893C',
+          DEFAULT: 'var(--color-sand)',
+          light: 'var(--color-sand-light)',
+          dark: 'var(--color-sand-dark)',
         },
-        forest: '#3B6B4A',
-        rust: '#B54B3C',
-        plum: '#6B4267',
+        forest: 'var(--color-forest)',
+        rust: 'var(--color-rust)',
+        plum: 'var(--color-plum)',
       },
     },
   },

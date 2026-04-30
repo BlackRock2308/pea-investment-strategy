@@ -128,7 +128,7 @@ export default function DCAView() {
                 className="grid grid-cols-12 gap-4 items-center py-3 px-4 border-l-4 hover:bg-cream transition-colors"
                 style={{
                   borderColor: done ? COLORS.forest : cfg.color,
-                  backgroundColor: i % 2 === 0 ? COLORS.paper : '#FDFBF7',
+                  backgroundColor: i % 2 === 0 ? COLORS.paper : COLORS.rowAlt,
                   opacity: done ? 0.6 : 1,
                 }}
               >
@@ -189,7 +189,7 @@ export default function DCAView() {
                 className="border-l-4 p-3 rounded-r"
                 style={{
                   borderColor: done ? COLORS.forest : cfg.color,
-                  backgroundColor: i % 2 === 0 ? COLORS.paper : '#FDFBF7',
+                  backgroundColor: i % 2 === 0 ? COLORS.paper : COLORS.rowAlt,
                   opacity: done ? 0.6 : 1,
                 }}
               >

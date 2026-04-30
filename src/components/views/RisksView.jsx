@@ -1,4 +1,4 @@
-import { COLORS } from '../../theme/colors';
+import { COLORS, colorWithAlpha } from '../../theme/colors';
 import { risques } from '../../data/risks';
 import { TOTAL_CURRENT } from '../../data/portfolio';
 import Card from '../ui/Card';
@@ -65,7 +65,7 @@ export default function RisksView() {
               <div className="flex items-start gap-3 sm:gap-4">
                 <div
                   className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: `${r.color}15` }}
+                  style={{ backgroundColor: colorWithAlpha(r.color, 0.08) }}
                 >
                   <Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: r.color }} />
                 </div>
@@ -159,7 +159,7 @@ export default function RisksView() {
                 <div
                   key={i}
                   className="relative p-4 sm:p-5 border-b lg:border-b-0 lg:border-r last:border-0 border-border"
-                  style={{ backgroundColor: isActive ? `${p.color}06` : 'transparent' }}
+                  style={{ backgroundColor: isActive ? colorWithAlpha(p.color, 0.04) : 'transparent' }}
                 >
                   <div className="absolute top-0 left-0 w-full h-0.5" style={{ backgroundColor: p.color }} />
                   {isActive && (

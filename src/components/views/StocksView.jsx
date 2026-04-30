@@ -1,25 +1,22 @@
 import { useState } from 'react';
 import { Award, BookOpen, Sparkles, CircleCheck, CircleAlert, ChevronDown, Filter } from 'lucide-react';
-import { COLORS } from '../../theme/colors';
+import { COLORS, colorWithAlpha } from '../../theme/colors';
 import { stocks } from '../../data/stocks';
 import Card from '../ui/Card';
 import SectionTitle from '../ui/SectionTitle';
 import Badge from '../ui/Badge';
 
 const PHASE_CONFIG = {
-  1: { label: 'PHASE 1 — À DÉMARRER', color: COLORS.navy, bg: `${COLORS.navy}12`, border: `${COLORS.navy}40` },
-  2: { label: 'PHASE 2+', color: COLORS.inkLight, bg: `${COLORS.inkLight}08`, border: `${COLORS.inkLight}20` },
+  1: { label: 'PHASE 1 — À DÉMARRER', color: COLORS.navy },
+  2: { label: 'PHASE 2+', color: COLORS.inkLight },
 };
 
 function PhaseBadge({ phase }) {
   const config = PHASE_CONFIG[phase] || PHASE_CONFIG[2];
   return (
-    <div
-      className="inline-flex items-center px-2 sm:px-3 py-1 text-[10px] sm:text-xs uppercase tracking-[0.1em] font-medium"
-      style={{ color: config.color, backgroundColor: config.bg, border: `1px solid ${config.border}` }}
-    >
+    <Badge color={config.color}>
       {config.label}
-    </div>
+    </Badge>
   );
 }
 
@@ -252,7 +249,7 @@ export default function StocksView() {
                 key={s.ticker}
                 onClick={() => setSelected(s)}
                 className="w-full text-left p-3 flex justify-between items-center transition-colors"
-                style={{ backgroundColor: isActive ? `${COLORS.navy}10` : 'transparent' }}
+                style={{ backgroundColor: isActive ? colorWithAlpha(COLORS.navy, 0.06) : 'transparent' }}
               >
                 <div className="flex items-center gap-3">
                   <div className="flex gap-0.5">
@@ -292,7 +289,7 @@ export default function StocksView() {
                 className="w-full text-left p-4 border transition-all"
                 style={{
                   backgroundColor: isActive ? COLORS.navy : COLORS.paper,
-                  borderColor: isActive ? COLORS.navy : s.phase === 2 ? `${COLORS.border}80` : COLORS.border,
+                  borderColor: isActive ? COLORS.navy : s.phase === 2 ? colorWithAlpha(COLORS.border, 0.5) : COLORS.border,
                   color: isActive ? COLORS.paper : COLORS.ink,
                   opacity: s.phase === 2 && !isActive ? 0.7 : 1,
                 }}
@@ -336,7 +333,7 @@ export default function StocksView() {
                           backgroundColor:
                             i < s.moat
                               ? isActive ? COLORS.sand : COLORS.navy
-                              : isActive ? '#ffffff20' : COLORS.border,
+                              : isActive ? 'rgba(255,255,255,0.12)' : COLORS.border,
                         }}
                       />
                     ))}

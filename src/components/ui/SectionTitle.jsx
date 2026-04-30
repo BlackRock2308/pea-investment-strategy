@@ -2,7 +2,7 @@ import { COLORS } from '../../theme/colors';
 
 export default function SectionTitle({ number, title, subtitle }) {
   return (
-    <div className="mb-8 pb-4 border-b border-border">
+    <div className="mb-8 pb-4 border-b" style={{ borderColor: COLORS.border }}>
       <div className="flex items-baseline gap-4">
         {number && (
           <span

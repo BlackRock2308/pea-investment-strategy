@@ -12,7 +12,7 @@ export default function Slider({ label, value, min, max, step, onChange, unit, c
         >
           {label}
         </label>
-        <span className="text-2xl font-light tabular-nums font-serif" style={{ color }}>
+        <span className="text-2xl font-light tabular-nums font-serif" style={{ color, letterSpacing: '-0.02em' }}>
           {value}
           <span className="text-sm ml-1" style={{ color: COLORS.inkLight }}>
             {unit}
@@ -26,11 +26,11 @@ export default function Slider({ label, value, min, max, step, onChange, unit, c
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-1 cursor-pointer slider-thumb"
+        className="w-full h-1 cursor-pointer slider-thumb rounded-full"
         style={{
           appearance: 'none',
           WebkitAppearance: 'none',
-          background: `linear-gradient(to right, ${color} 0%, ${color} ${pct}%, ${COLORS.border} ${pct}%, ${COLORS.border} 100%)`,
+          background: `linear-gradient(to right, ${color} 0%, ${color} ${pct}%, var(--color-border) ${pct}%, var(--color-border) 100%)`,
         }}
       />
     </div>

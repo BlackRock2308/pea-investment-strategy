@@ -1,6 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Target } from 'lucide-react';
-import { COLORS } from '../../theme/colors';
+import { COLORS, colorWithAlpha } from '../../theme/colors';
 import { fmtEur } from '../../utils/formatters';
 import { portfolioActual, portfolioTarget, TOTAL_CURRENT, PV_CURRENT, PHASE_1_THRESHOLD, PHASE_2_THRESHOLD, PEA_CEILING } from '../../data/portfolio';
 import Card from '../ui/Card';
@@ -76,7 +76,7 @@ function PhaseTracker() {
               className="p-3 sm:p-4 border-l-4"
               style={{
                 borderColor: p.color,
-                backgroundColor: isActive ? `${p.color}08` : COLORS.cream,
+                backgroundColor: isActive ? colorWithAlpha(p.color, 0.05) : COLORS.cream,
                 opacity: isActive ? 1 : 0.6,
               }}
             >
