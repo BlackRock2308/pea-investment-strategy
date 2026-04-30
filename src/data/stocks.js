@@ -12,6 +12,7 @@ export const stocks = [
     payout: 64,
     moat: 9,
     priorite: 1,
+    phase: 1,
     these:
       'Aristocrate absolu européen avec 31 années consécutives de hausse. Cycle de lancement Dupixent (+30 Md$ visés) et pipeline vaccins post-COVID renforcé.',
     catalyseurs: [
@@ -39,6 +40,7 @@ export const stocks = [
     payout: 59,
     moat: 8,
     priorite: 1,
+    phase: 1,
     these:
       "Meilleur profil risque/rendement des majors européennes : rendement 5,2 %, PER 8, transition crédible avec 30 % du CapEx en bas-carbone d'ici 2030.",
     catalyseurs: [
@@ -67,6 +69,7 @@ export const stocks = [
     payout: 65,
     moat: 7,
     priorite: 1,
+    phase: 2,
     these:
       'Plus haut rendement du CAC 40 (5,3 %), PER attractif (9), plan « Unlock the Future » améliore marges et retours. Environnement de taux favorable en 2026.',
     catalyseurs: [
@@ -95,6 +98,7 @@ export const stocks = [
     payout: 57,
     moat: 9,
     priorite: 1,
+    phase: 2,
     these:
       'Les concessions (autoroutes, aéroports) sont des rentes quasi-monopolistiques de 30–50 ans. Trésorerie disponible > 6 Md€. Meilleur compromis rendement + croissance.',
     catalyseurs: [
@@ -123,6 +127,7 @@ export const stocks = [
     payout: 54,
     moat: 10,
     priorite: 2,
+    phase: 2,
     these:
       'Aristocrate de qualité absolue : contrats industriels 10–15 ans non délocalisables, marché oligopolistique (Linde, Air Products). 28 ans de hausse, payout maîtrisé à 54 %.',
     catalyseurs: [
@@ -151,6 +156,7 @@ export const stocks = [
     payout: 55,
     moat: 10,
     priorite: 2,
+    phase: 2,
     these:
       "Ultime aristocrate européenne : 60+ ans de hausse (record mondial). Leader mondial, 35 marques, marges > 20 %. Prime fidélité +10 % au nominatif administré.",
     catalyseurs: [
@@ -179,6 +185,7 @@ export const stocks = [
     payout: 55,
     moat: 8,
     priorite: 2,
+    phase: 2,
     these:
       "Pilier industriel allemand recentré (post-spins Energy et Healthineers). Positionné sur industrie 4.0, bâtiment intelligent, mobilité ferroviaire. +48 % de dividende sur 5 ans.",
     catalyseurs: [
@@ -208,6 +215,7 @@ export const stocks = [
     payout: 35,
     moat: 9,
     priorite: 3,
+    phase: 2,
     these:
       'Monopole mondial lithographie EUV — sans ASML, pas de puces 3 nm. Position inattaquable 10–15 ans. Dividende modeste mais payout 35 % = immense marge de hausse.',
     catalyseurs: [

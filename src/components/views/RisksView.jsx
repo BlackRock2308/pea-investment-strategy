@@ -1,17 +1,19 @@
 import { COLORS } from '../../theme/colors';
 import { risques } from '../../data/risks';
+import { TOTAL_CURRENT } from '../../data/portfolio';
 import Card from '../ui/Card';
 import SectionTitle from '../ui/SectionTitle';
 import Badge from '../ui/Badge';
 
 const investmentRules = [
-  'DCA automatique 300 €/mois, sans exception, quelle que soit la conjoncture.',
-  'Pas de market timing : ne jamais suspendre le DCA sur anticipation de baisse.',
-  'Renforts exceptionnels autorisés uniquement sur drawdowns > −20 %.',
-  'Rééquilibrage semestriel par flux entrants (jamais par vente).',
-  'Maximum 5 % du PEA par action individuelle.',
-  "Zéro produit à effet de levier, pas d'options, pas de structurés.",
-  "Actions individuelles : n'acheter que dans la fourchette d'achat fiche.",
+  { text: 'Maximiser le DCA mensuel — l\'allocation se précisera avec le volume.', active: true },
+  { text: 'DCA automatique 300 €/mois, sans exception, quelle que soit la conjoncture.', active: true },
+  { text: 'Pas de market timing : ne jamais suspendre le DCA sur anticipation de baisse.', active: true },
+  { text: 'Renforts exceptionnels autorisés uniquement sur drawdowns > −20 %.', active: true },
+  { text: 'Rééquilibrage semestriel par flux entrants (jamais par vente).', active: false, note: 'Actif à partir de 20 000 €' },
+  { text: 'Maximum 5 % du PEA par action individuelle.', active: true },
+  { text: "Zéro produit à effet de levier, pas d'options, pas de structurés.", active: true },
+  { text: "Actions individuelles : 2–3 lignes max en phase 1 (Sanofi + TotalEnergies en priorité).", active: true },
 ];
 
 const circuitBreakers = [
@@ -38,13 +40,15 @@ const circuitBreakers = [
 ];
 
 const phases = [
-  { an: 'An 1—5', titre: 'Accumulation', desc: "Capitalisation pure. Aucun retrait (perte de l'avantage fiscal).", color: COLORS.navy },
-  { an: 'An 5—12', titre: 'Capitalisation', desc: 'Zéro retrait. Effet composé maximal.', color: COLORS.navyLight },
-  { an: 'An 12—15', titre: 'Transition', desc: 'Bascule ETF capitalisants → distributifs sur une partie.', color: COLORS.sand },
-  { an: 'An 15—20+', titre: 'Distribution', desc: 'Revenu passif estimé 1 000 — 1 800 €/mois net de PS.', color: COLORS.forest },
+  { label: 'Phase 1', titre: 'Capitalisation', range: '0 – 20k €', threshold: 20000, desc: "Alimenter la machine. Allocation grossière acceptable. Priorité au volume investi.", color: COLORS.navy },
+  { label: 'Phase 2', titre: 'Structuration', range: '20k – 80k €', threshold: 80000, desc: 'Allocation précise 40/30/15/15. Optimisation fiscale. Rééquilibrage semestriel.', color: COLORS.sand },
+  { label: 'Phase 3', titre: 'Optimisation', range: '80k €+', threshold: 150000, desc: 'Rééquilibrage fin, satellites, bascule partielle en distributifs.', color: COLORS.forest },
+  { label: 'Phase 4', titre: 'Distribution', range: 'An 15+', threshold: null, desc: 'Revenu passif estimé 1 000 — 1 800 €/mois net de PS.', color: COLORS.plum },
 ];
 
 export default function RisksView() {
+  const currentPhaseIdx = TOTAL_CURRENT < 20000 ? 0 : TOTAL_CURRENT < 80000 ? 1 : 2;
+
   return (
     <div className="space-y-8 sm:space-y-12">
       <SectionTitle
@@ -104,12 +108,19 @@ export default function RisksView() {
               Règles d'investissement
             </h4>
             <ol className="space-y-3 text-sm" style={{ color: COLORS.ink, lineHeight: 1.6 }}>
-              {investmentRules.map((t, i) => (
-                <li key={i} className="flex gap-3">
+              {investmentRules.map((r, i) => (
+                <li key={i} className="flex gap-3" style={{ opacity: r.active ? 1 : 0.5 }}>
                   <span className="tabular-nums font-medium flex-shrink-0" style={{ color: COLORS.sand }}>
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <span>{t}</span>
+                  <div>
+                    <span>{r.text}</span>
+                    {r.note && (
+                      <span className="block text-[10px] uppercase tracking-wider mt-0.5 font-medium" style={{ color: COLORS.inkLight }}>
+                        {r.note}
+                      </span>
+                    )}
+                  </div>
                 </li>
               ))}
             </ol>
@@ -139,23 +150,39 @@ export default function RisksView() {
 
         <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-border">
           <h4 className="text-sm uppercase tracking-[0.15em] font-medium mb-4 sm:mb-6" style={{ color: COLORS.navy }}>
-            Phases temporelles
+            Phases du capital
           </h4>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-0">
-            {phases.map((p, i) => (
-              <div key={i} className="relative p-4 sm:p-5 border-b lg:border-b-0 lg:border-r last:border-0 border-border">
-                <div className="absolute top-0 left-0 w-full h-0.5" style={{ backgroundColor: p.color }} />
-                <div className="text-[10px] uppercase tracking-[0.2em] font-medium mb-2" style={{ color: p.color }}>
-                  {p.an}
+            {phases.map((p, i) => {
+              const isActive = i === currentPhaseIdx;
+              return (
+                <div
+                  key={i}
+                  className="relative p-4 sm:p-5 border-b lg:border-b-0 lg:border-r last:border-0 border-border"
+                  style={{ backgroundColor: isActive ? `${p.color}06` : 'transparent' }}
+                >
+                  <div className="absolute top-0 left-0 w-full h-0.5" style={{ backgroundColor: p.color }} />
+                  {isActive && (
+                    <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: p.color }} />
+                  )}
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="text-[10px] uppercase tracking-[0.2em] font-medium" style={{ color: p.color }}>
+                      {p.label}
+                    </div>
+                    {isActive && <Badge color={p.color}>Actuelle</Badge>}
+                  </div>
+                  <div className="text-lg sm:text-xl font-normal mb-1 font-serif" style={{ color: COLORS.ink }}>
+                    {p.titre}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider font-medium mb-2" style={{ color: COLORS.inkLight }}>
+                    {p.range}
+                  </div>
+                  <div className="text-xs" style={{ color: COLORS.inkMid, lineHeight: 1.5 }}>
+                    {p.desc}
+                  </div>
                 </div>
-                <div className="text-lg sm:text-xl font-normal mb-2 font-serif" style={{ color: COLORS.ink }}>
-                  {p.titre}
-                </div>
-                <div className="text-xs" style={{ color: COLORS.inkMid, lineHeight: 1.5 }}>
-                  {p.desc}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </Card>

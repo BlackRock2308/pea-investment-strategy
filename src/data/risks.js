@@ -7,14 +7,14 @@ export const risques = [
     icon: AlertTriangle,
     niveau: 'Élevé',
     color: COLORS.rust,
-    desc: "CAPE S&P 500 à 39,5 vs médiane historique 16. Rendement futur implicite Shiller : 1,8 %/an sur 10 ans. Mitigation dans l'allocation cible : US borné à 40 %.",
+    desc: "CAPE S&P 500 à 39,5 vs médiane historique 16. Rendement futur implicite Shiller : 1,8 %/an sur 10 ans. Mitigation : ESE borné à 50–55 % en phase 1, 40 % à partir de la phase 2.",
   },
   {
     titre: 'USD vs EUR',
     icon: Activity,
     niveau: 'Moyen',
     color: COLORS.sand,
-    desc: 'Affaiblissement USD en 2025–2026 érode les rendements en EUR. Mitigation : 45 % du portefeuille cible en EUR pur (Stoxx 600 + actions individuelles).',
+    desc: 'Affaiblissement USD en 2025–2026 érode les rendements en EUR. Mitigation : ~35 % du portefeuille en EUR pur (Stoxx 600 + actions individuelles).',
   },
   {
     titre: 'Récession US',
@@ -28,7 +28,7 @@ export const risques = [
     icon: Layers,
     niveau: 'Moyen',
     color: COLORS.sand,
-    desc: 'Mag7 = 35 % du S&P 500. Dans allocation cible, cela équivaut à ~14 % du PEA total — niveau maîtrisé vs 23 % actuels.',
+    desc: 'Mag7 = 35 % du S&P 500. En phase 1 avec 52 % ESE cible, cela représente ~18 % du PEA — acceptable. Ce poids se réduira naturellement en phase 2.',
   },
   {
     titre: 'Tensions commerciales',

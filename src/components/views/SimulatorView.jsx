@@ -1,20 +1,37 @@
 import { useState, useMemo } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts';
 import { COLORS } from '../../theme/colors';
 import { fmtEur } from '../../utils/formatters';
 import { projectPortfolio } from '../../utils/calculations';
+import { TOTAL_CURRENT, PHASE_1_THRESHOLD, PHASE_2_THRESHOLD, PEA_CEILING } from '../../data/portfolio';
 import Card from '../ui/Card';
 import StatBlock from '../ui/StatBlock';
 import SectionTitle from '../ui/SectionTitle';
 import Slider from '../ui/Slider';
 import CustomTooltip from '../ui/CustomTooltip';
 
+function computePhase1Exit(initial, monthly, annualRate) {
+  const monthlyRate = Math.pow(1 + annualRate / 100, 1 / 12) - 1;
+  let balance = initial;
+  for (let m = 1; m <= 360; m++) {
+    balance = balance * (1 + monthlyRate) + monthly;
+    if (balance >= PHASE_1_THRESHOLD) {
+      const years = Math.floor(m / 12);
+      const months = m % 12;
+      const date = new Date(2026, 3 + m, 1);
+      const dateStr = date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+      return { years, months, dateStr, label: years > 0 ? `${years} an${years > 1 ? 's' : ''} ${months} mois` : `${months} mois` };
+    }
+  }
+  return { years: 30, months: 0, dateStr: '—', label: '30+ ans' };
+}
+
 export default function SimulatorView() {
   const [monthly, setMonthly] = useState(300);
   const [years, setYears] = useState(20);
   const [rate, setRate] = useState(8.5);
 
-  const data = useMemo(() => projectPortfolio(3427, monthly, years, rate), [monthly, years, rate]);
+  const data = useMemo(() => projectPortfolio(Math.round(TOTAL_CURRENT), monthly, years, rate), [monthly, years, rate]);
   const final = data[data.length - 1];
   const totalApports = final.apports;
   const totalPV = final.plusValue;
@@ -24,12 +41,19 @@ export default function SimulatorView() {
   const ctoAmount = totalPV * 0.3;
   const gainFiscal = ctoAmount - psAmount;
 
+  const phase1Exit = useMemo(() => computePhase1Exit(TOTAL_CURRENT, monthly, rate), [monthly, rate]);
+
+  const maxCapital = final.capital;
+  const showPhase1Line = PHASE_1_THRESHOLD < maxCapital;
+  const showPhase2Line = PHASE_2_THRESHOLD < maxCapital;
+  const showCeilingLine = PEA_CEILING < maxCapital;
+
   return (
     <div className="space-y-8 sm:space-y-12">
       <SectionTitle
         number="II"
         title="Simulateur de projection"
-        subtitle="Ajuste les paramètres pour visualiser l'effet de la capitalisation composée sur ton PEA. Portefeuille de départ 3 427 €."
+        subtitle={`Ajuste les paramètres pour visualiser l'effet de la capitalisation composée sur ton PEA. Portefeuille de départ ${fmtEur(Math.round(TOTAL_CURRENT))}.`}
       />
 
       <Card padding="p-5 sm:p-10">
@@ -40,7 +64,7 @@ export default function SimulatorView() {
         </div>
 
         <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-border">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px" style={{ backgroundColor: COLORS.border }}>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-px" style={{ backgroundColor: COLORS.border }}>
             <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
               <StatBlock label="Capital final" value={fmtEur(final.capital)} accent={COLORS.navy} large />
             </div>
@@ -53,6 +77,15 @@ export default function SimulatorView() {
             <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
               <StatBlock label="Gain fiscal PEA vs CTO" value={`+${fmtEur(gainFiscal)}`} sub="17,2 % PS vs 30 % flat tax" accent={COLORS.sand} large />
             </div>
+            <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6 col-span-2 lg:col-span-1">
+              <StatBlock
+                label="Sortie phase 1"
+                value={phase1Exit.dateStr}
+                sub={phase1Exit.label}
+                accent={COLORS.navy}
+                large
+              />
+            </div>
           </div>
         </div>
       </Card>
@@ -64,10 +97,10 @@ export default function SimulatorView() {
               Projection du patrimoine PEA
             </h3>
             <p className="text-xs sm:text-sm mt-1" style={{ color: COLORS.inkLight }}>
-              Capital total vs apports cumulés
+              Capital total vs apports cumulés — seuils de phase en pointillés
             </p>
           </div>
-          <div className="flex gap-4 text-xs">
+          <div className="flex flex-wrap gap-4 text-xs">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3" style={{ backgroundColor: COLORS.navy }} />
               <span style={{ color: COLORS.inkMid }}>Capital total</span>
@@ -78,7 +111,7 @@ export default function SimulatorView() {
             </div>
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={320}>
           <AreaChart data={data} margin={{ top: 10, right: 5, left: -10, bottom: 10 }}>
             <defs>
               <linearGradient id="capitalGradient" x1="0" y1="0" x2="0" y2="1">
@@ -105,6 +138,33 @@ export default function SimulatorView() {
               width={40}
             />
             <Tooltip content={<CustomTooltip />} />
+            {showPhase1Line && (
+              <ReferenceLine
+                y={PHASE_1_THRESHOLD}
+                stroke={COLORS.navy}
+                strokeDasharray="6 4"
+                strokeWidth={1}
+                label={{ value: '20k — Phase 2', position: 'right', fill: COLORS.inkLight, fontSize: 9 }}
+              />
+            )}
+            {showPhase2Line && (
+              <ReferenceLine
+                y={PHASE_2_THRESHOLD}
+                stroke={COLORS.sand}
+                strokeDasharray="6 4"
+                strokeWidth={1}
+                label={{ value: '80k — Phase 3', position: 'right', fill: COLORS.inkLight, fontSize: 9 }}
+              />
+            )}
+            {showCeilingLine && (
+              <ReferenceLine
+                y={PEA_CEILING}
+                stroke={COLORS.forest}
+                strokeDasharray="6 4"
+                strokeWidth={1}
+                label={{ value: '150k — Plafond PEA', position: 'right', fill: COLORS.inkLight, fontSize: 9 }}
+              />
+            )}
             <Area type="monotone" dataKey="capital" name="Capital total" stroke={COLORS.navy} strokeWidth={2.5} fill="url(#capitalGradient)" />
             <Area type="monotone" dataKey="apports" name="Apports cumulés" stroke={COLORS.sand} strokeWidth={2} strokeDasharray="4 4" fill="url(#apportsGradient)" />
           </AreaChart>

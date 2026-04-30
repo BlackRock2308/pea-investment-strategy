@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Target, Shield, Check } from 'lucide-react';
+import { Target, Shield, Check, Zap } from 'lucide-react';
 import { COLORS } from '../../theme/colors';
 import { fmtEur } from '../../utils/formatters';
 import { dcaSchedule } from '../../data/dca';
@@ -9,6 +9,13 @@ import SectionTitle from '../ui/SectionTitle';
 import Badge from '../ui/Badge';
 
 const STORAGE_KEY = 'pea_dca_done';
+
+const TYPE_CONFIG = {
+  'etf-us': { label: 'ETF S&P 500', color: COLORS.navyLight },
+  'etf-eu': { label: 'ETF Europe', color: COLORS.sand },
+  action: { label: 'Action individuelle', color: COLORS.plum },
+  flex: { label: 'Flexible', color: COLORS.forest },
+};
 
 function loadDoneSet() {
   try {
@@ -56,33 +63,47 @@ export default function DCAView() {
   }, []);
 
   const totalAnnuel = dcaSchedule.reduce((s, m) => s + m.montant, 0);
+  const partESE = dcaSchedule.filter((m) => m.type === 'etf-us').reduce((s, m) => s + m.montant, 0);
+  const partStoxx = dcaSchedule.filter((m) => m.type === 'etf-eu').reduce((s, m) => s + m.montant, 0);
   const partActions = dcaSchedule.filter((m) => m.type === 'action').reduce((s, m) => s + m.montant, 0);
-  const partETF = dcaSchedule.filter((m) => m.type === 'etf').reduce((s, m) => s + m.montant, 0);
   const doneCount = dcaSchedule.filter((m) => doneSet.has(m.id)).length;
+
+  function getTypeConfig(type) {
+    return TYPE_CONFIG[type] || TYPE_CONFIG.flex;
+  }
 
   return (
     <div className="space-y-8 sm:space-y-12">
       <SectionTitle
         number="III"
         title="Plan DCA opérationnel"
-        subtitle="Calendrier des 12 prochains mois — 300 €/mois. Chaque achat est orienté pour corriger la sur-concentration US actuelle et construire progressivement la poche actions dividendes."
+        subtitle="Calendrier des 12 prochains mois — 300 €/mois. ESE redevient un destinataire légitime du DCA : le S&P 500 est le cœur assumé du portefeuille."
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-px" style={{ backgroundColor: COLORS.border }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-px" style={{ backgroundColor: COLORS.border }}>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
           <StatBlock label="Total sur 12 mois" value={fmtEur(totalAnnuel)} sub="3 600 € prévus" accent={COLORS.ink} large />
         </div>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
           <StatBlock
+            label="Dont ESE (S&P 500)"
+            value={fmtEur(partESE)}
+            sub={`${Math.round((partESE / totalAnnuel) * 100)} % — cœur`}
+            accent={COLORS.navyLight}
+            large
+          />
+        </div>
+        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
+          <StatBlock
             label="Dont Stoxx 600"
-            value={fmtEur(partETF)}
-            sub={`${Math.round((partETF / totalAnnuel) * 100)} % — priorité n°1`}
+            value={fmtEur(partStoxx)}
+            sub={`${Math.round((partStoxx / totalAnnuel) * 100)} % — ancrage EUR`}
             accent={COLORS.sand}
             large
           />
         </div>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock label="Dont actions individuelles" value={fmtEur(partActions)} sub="5 positions ouvertes sur 12 mois" accent={COLORS.plum} large />
+          <StatBlock label="Dont actions" value={fmtEur(partActions)} sub="2 positions phase 1" accent={COLORS.plum} large />
         </div>
       </div>
 
@@ -100,12 +121,13 @@ export default function DCAView() {
         <div className="hidden md:block space-y-1">
           {dcaSchedule.map((m, i) => {
             const done = doneSet.has(m.id);
+            const cfg = getTypeConfig(m.type);
             return (
               <div
                 key={m.id}
                 className="grid grid-cols-12 gap-4 items-center py-3 px-4 border-l-4 hover:bg-cream transition-colors"
                 style={{
-                  borderColor: done ? COLORS.forest : m.type === 'action' ? COLORS.plum : COLORS.sand,
+                  borderColor: done ? COLORS.forest : cfg.color,
                   backgroundColor: i % 2 === 0 ? COLORS.paper : '#FDFBF7',
                   opacity: done ? 0.6 : 1,
                 }}
@@ -128,8 +150,8 @@ export default function DCAView() {
                   >
                     {m.action}
                   </div>
-                  <Badge color={m.type === 'action' ? COLORS.plum : COLORS.sand}>
-                    {m.type === 'action' ? 'Action individuelle' : 'ETF Europe'}
+                  <Badge color={cfg.color}>
+                    {cfg.label}
                   </Badge>
                 </div>
                 <div className="col-span-3 text-sm" style={{ color: COLORS.inkMid }}>
@@ -146,7 +168,7 @@ export default function DCAView() {
                       className="absolute left-0 top-0 h-full"
                       style={{
                         width: `${(m.montant / 400) * 100}%`,
-                        backgroundColor: done ? COLORS.forest : m.type === 'action' ? COLORS.plum : COLORS.sand,
+                        backgroundColor: done ? COLORS.forest : cfg.color,
                       }}
                     />
                   </div>
@@ -156,16 +178,17 @@ export default function DCAView() {
           })}
         </div>
 
-        {/* Mobile timeline — card layout */}
+        {/* Mobile timeline */}
         <div className="md:hidden space-y-3">
           {dcaSchedule.map((m, i) => {
             const done = doneSet.has(m.id);
+            const cfg = getTypeConfig(m.type);
             return (
               <div
                 key={m.id}
                 className="border-l-4 p-3 rounded-r"
                 style={{
-                  borderColor: done ? COLORS.forest : m.type === 'action' ? COLORS.plum : COLORS.sand,
+                  borderColor: done ? COLORS.forest : cfg.color,
                   backgroundColor: i % 2 === 0 ? COLORS.paper : '#FDFBF7',
                   opacity: done ? 0.6 : 1,
                 }}
@@ -192,15 +215,15 @@ export default function DCAView() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-8">
-                  <Badge color={m.type === 'action' ? COLORS.plum : COLORS.sand}>
-                    {m.type === 'action' ? 'Action' : 'ETF'}
+                  <Badge color={cfg.color}>
+                    {cfg.label}
                   </Badge>
                   <div className="flex-1 h-1 relative" style={{ backgroundColor: COLORS.border }}>
                     <div
                       className="absolute left-0 top-0 h-full"
                       style={{
                         width: `${(m.montant / 400) * 100}%`,
-                        backgroundColor: done ? COLORS.forest : m.type === 'action' ? COLORS.plum : COLORS.sand,
+                        backgroundColor: done ? COLORS.forest : cfg.color,
                       }}
                     />
                   </div>
@@ -216,15 +239,15 @@ export default function DCAView() {
           <div className="flex items-center gap-3 mb-4">
             <Target className="w-5 h-5" style={{ color: COLORS.sand }} />
             <h3 className="text-lg font-normal font-serif" style={{ color: COLORS.ink }}>
-              Règles de priorisation
+              Règles de priorisation — Phase 1
             </h3>
           </div>
           <ol className="space-y-3 text-sm" style={{ color: COLORS.inkMid, lineHeight: 1.6 }}>
             {[
-              'Prioriser la poche la plus éloignée (en %) de sa cible, par le bas.',
-              'Ne jamais renforcer une poche au-dessus de sa cible (ESE et PAEEM actuellement).',
-              'Les actions individuelles s\'achètent une par une, tous les 2 à 3 mois.',
-              'Aucune vente d\'existant : rééquilibrage par les flux entrants uniquement.',
+              'Maximiser le volume investi — chaque mois compte plus que la précision allocative.',
+              'Le S&P 500 (ESE) est le cœur : il reçoit le DCA par défaut en l\'absence d\'écart majeur.',
+              'Actions individuelles : 2–3 lignes maximum (Sanofi + TotalEnergies en priorité).',
+              'Rééquilibrage actif uniquement à partir de 20 000 € — en attendant, laisser faire le DCA.',
             ].map((t, i) => (
               <li key={i} className="flex gap-3">
                 <span className="tabular-nums font-medium flex-shrink-0" style={{ color: COLORS.sand }}>
@@ -238,26 +261,31 @@ export default function DCAView() {
 
         <Card padding="p-5 sm:p-8">
           <div className="flex items-center gap-3 mb-4">
-            <Shield className="w-5 h-5" style={{ color: COLORS.forest }} />
+            <Zap className="w-5 h-5" style={{ color: COLORS.forest }} />
             <h3 className="text-lg font-normal font-serif" style={{ color: COLORS.ink }}>
-              Seuils de rééquilibrage
+              Mois flexibles
             </h3>
           </div>
-          <ol className="space-y-3 text-sm" style={{ color: COLORS.inkMid, lineHeight: 1.6 }}>
-            {[
-              { label: '+10 pts', color: COLORS.forest, text: 'Stopper les achats sur cette poche, rediriger le DCA.' },
-              { label: '+15 pts', color: COLORS.sand, text: 'Arbitrer partiellement (vente interne — zéro frottement fiscal en PEA).' },
-              { label: '+3 %', color: COLORS.rust, text: 'Plafond par action individuelle — arrêter les renforts.' },
-              { label: '6 mois', color: COLORS.plum, text: 'Fréquence de revue (fin juin + fin décembre).' },
-            ].map((b, i) => (
-              <li key={i} className="flex gap-3">
-                <span className="tabular-nums font-medium flex-shrink-0" style={{ color: b.color }}>
-                  {b.label}
-                </span>
-                <span>{b.text}</span>
-              </li>
-            ))}
-          </ol>
+          <div className="space-y-3 text-sm" style={{ color: COLORS.inkMid, lineHeight: 1.6 }}>
+            <p>
+              Les mois M11 et M12 sont marqués <strong style={{ color: COLORS.forest }}>flexibles</strong>.
+              Décision en fonction de :
+            </p>
+            <ol className="space-y-2 ml-4">
+              {[
+                'L\'écart le plus important aux fourchettes cibles (52/22/13/13 %).',
+                'Opportunité de marché : drawdown > −15 % sur une poche = renforcement.',
+                'Amorcer une 3e action individuelle si Sanofi et TotalEnergies sont déjà en portefeuille.',
+              ].map((t, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="tabular-nums font-medium flex-shrink-0" style={{ color: COLORS.forest }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span>{t}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
         </Card>
       </div>
     </div>

@@ -7,6 +7,8 @@ import {
   Shield,
 } from 'lucide-react';
 import { COLORS } from './theme/colors';
+import { TOTAL_CURRENT, PHASE_1_THRESHOLD } from './data/portfolio';
+import { fmtEur } from './utils/formatters';
 import OverviewView from './components/views/OverviewView';
 import SimulatorView from './components/views/SimulatorView';
 import DCAView from './components/views/DCAView';
@@ -32,6 +34,7 @@ const VIEW_MAP = {
 export default function App() {
   const [tab, setTab] = useState('overview');
   const ActiveView = VIEW_MAP[tab];
+  const phasePct = Math.min((TOTAL_CURRENT / PHASE_1_THRESHOLD) * 100, 100);
 
   return (
     <div className="min-h-screen font-sans" style={{ backgroundColor: COLORS.cream, color: COLORS.ink }}>
@@ -54,23 +57,36 @@ export default function App() {
                     stratégie long terme
                   </span>
                 </h1>
-                <p className="text-xs sm:text-sm mt-1 sm:mt-2" style={{ color: COLORS.inkMid }}>
-                  Profil dynamique 29 ans · Horizon 15–20 ans · DCA 300 €/mois
-                </p>
+                <div className="flex items-center gap-3 mt-1.5 sm:mt-2">
+                  <span className="text-xs sm:text-sm" style={{ color: COLORS.inkMid }}>
+                    Phase 1 · Capitalisation · {fmtEur(Math.round(TOTAL_CURRENT))} / {fmtEur(PHASE_1_THRESHOLD)}
+                  </span>
+                </div>
+                <div className="mt-1.5 flex items-center gap-3">
+                  <div className="h-1.5 flex-1 relative" style={{ backgroundColor: COLORS.border, maxWidth: '12rem' }}>
+                    <div
+                      className="absolute left-0 top-0 h-full transition-all"
+                      style={{ width: `${phasePct}%`, backgroundColor: COLORS.sand }}
+                    />
+                  </div>
+                  <span className="text-[10px] tabular-nums font-medium" style={{ color: COLORS.sand }}>
+                    {phasePct.toFixed(1)} %
+                  </span>
+                </div>
               </div>
             </div>
             <div className="hidden md:block text-right">
               <div className="text-[10px] uppercase tracking-[0.2em] font-medium" style={{ color: COLORS.inkLight }}>
-                Architecture
+                Philosophie
               </div>
               <div className="text-sm mt-1 font-serif" style={{ color: COLORS.ink }}>
-                4 poches · Zéro overlap ETF
+                S&P 500 cœur assumé · DCA 300 €/mois
               </div>
             </div>
           </div>
         </div>
 
-        {/* Tabs — icons + short labels on mobile, full labels on desktop */}
+        {/* Tabs */}
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-10">
           <nav className="flex border-t border-border overflow-x-auto scrollbar-hide">
             {TABS.map((t) => {
@@ -117,7 +133,7 @@ export default function App() {
             Les performances passées ne préjugent pas des performances futures.
           </div>
           <div className="text-[10px] uppercase tracking-[0.2em] font-medium flex-shrink-0" style={{ color: COLORS.sand }}>
-            Version 2 · 23 avril 2026
+            Version 3 · 30 avril 2026
           </div>
         </div>
       </footer>
