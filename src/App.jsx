@@ -7,11 +7,13 @@ import {
   Shield,
   Sun,
   Moon,
+  Target,
 } from 'lucide-react';
 import { COLORS } from './theme/colors';
 import { TOTAL_CURRENT, PHASE_1_THRESHOLD } from './data/portfolio';
 import { fmtEur } from './utils/formatters';
 import OverviewView from './components/views/OverviewView';
+import TrajectoireView from './components/views/TrajectoireView';
 import SimulatorView from './components/views/SimulatorView';
 import DCAView from './components/views/DCAView';
 import StocksView from './components/views/StocksView';
@@ -19,6 +21,7 @@ import RisksView from './components/views/RisksView';
 
 const TABS = [
   { id: 'overview', label: "Vue d'ensemble", shortLabel: 'Aperçu', icon: PieIcon },
+  { id: 'trajectoire', label: 'Trajectoire', shortLabel: 'Traj.', icon: Target },
   { id: 'simulator', label: 'Simulateur', shortLabel: 'Simul.', icon: Activity },
   { id: 'dca', label: 'Plan DCA', shortLabel: 'DCA', icon: Calendar },
   { id: 'stocks', label: 'Actions dividendes', shortLabel: 'Actions', icon: Briefcase },
@@ -27,6 +30,7 @@ const TABS = [
 
 const VIEW_MAP = {
   overview: OverviewView,
+  trajectoire: TrajectoireView,
   simulator: SimulatorView,
   dca: DCAView,
   stocks: StocksView,
