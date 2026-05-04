@@ -8,6 +8,7 @@ import {
   Sun,
   Moon,
   Target,
+  Radio,
 } from 'lucide-react';
 import { COLORS } from './theme/colors';
 import { TOTAL_CURRENT, PHASE_1_THRESHOLD } from './data/portfolio';
@@ -18,9 +19,11 @@ import SimulatorView from './components/views/SimulatorView';
 import DCAView from './components/views/DCAView';
 import StocksView from './components/views/StocksView';
 import RisksView from './components/views/RisksView';
+import PortfolioTrackerView from './components/views/PortfolioTrackerView';
 
 const TABS = [
   { id: 'overview', label: "Vue d'ensemble", shortLabel: 'Aperçu', icon: PieIcon },
+  { id: 'live', label: 'Portefeuille Live', shortLabel: 'Live', icon: Radio },
   { id: 'trajectoire', label: 'Trajectoire', shortLabel: 'Traj.', icon: Target },
   { id: 'simulator', label: 'Simulateur', shortLabel: 'Simul.', icon: Activity },
   { id: 'dca', label: 'Plan DCA', shortLabel: 'DCA', icon: Calendar },
@@ -30,6 +33,7 @@ const TABS = [
 
 const VIEW_MAP = {
   overview: OverviewView,
+  live: PortfolioTrackerView,
   trajectoire: TrajectoireView,
   simulator: SimulatorView,
   dca: DCAView,

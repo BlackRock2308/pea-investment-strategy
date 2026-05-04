@@ -1,5 +1,11 @@
 import { COLORS } from '../theme/colors';
 
+export const ETF_HOLDINGS = [
+  { id: 'sp500', isin: 'FR0011550185', ticker: 'ESE.PA', boursoCode: '1rTESE', label: 'BNP Easy S&P 500', shares: 0, targetPct: 52, color: COLORS.navy },
+  { id: 'stoxx600', isin: 'FR0011550193', ticker: 'ETZ.PA', boursoCode: '1rTETZ', label: 'BNP Easy Stoxx 600', shares: 0, targetPct: 22, color: COLORS.sand },
+  { id: 'emerging', isin: 'FR0013412020', ticker: 'PAEEM.PA', boursoCode: '1rTPAEEM', label: 'Amundi PEA Emerging', shares: 0, targetPct: 13, color: COLORS.forest },
+];
+
 export const portfolioActual = [
   { name: 'ESE (S&P 500)', value: 2034.08, pct: 59.3, color: COLORS.navy },
   { name: 'Stoxx 600', value: 708.04, pct: 20.6, color: COLORS.sand },
