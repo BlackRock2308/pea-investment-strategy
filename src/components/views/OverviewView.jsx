@@ -2,7 +2,10 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Target } from 'lucide-react';
 import { COLORS, colorWithAlpha } from '../../theme/colors';
 import { fmtEur } from '../../utils/formatters';
-import { portfolioActual, portfolioTarget, TOTAL_CURRENT, PV_CURRENT, PHASE_1_THRESHOLD, PHASE_2_THRESHOLD, PEA_CEILING } from '../../data/portfolio';
+import { portfolioTarget, PHASE_1_THRESHOLD, PHASE_2_THRESHOLD, PEA_CEILING } from '../../data/portfolio';
+import usePortfolio from '../../hooks/usePortfolio';
+import useTotalDeposited from '../../hooks/useTotalDeposited';
+import useCashBalance from '../../hooks/useCashBalance';
 import Card from '../ui/Card';
 import StatBlock from '../ui/StatBlock';
 import SectionTitle from '../ui/SectionTitle';
@@ -22,8 +25,8 @@ const milestones = [
   { label: '150 000 €', value: 150000, desc: 'Plafond versements PEA', color: COLORS.forest },
 ];
 
-function PhaseTracker() {
-  const pct = Math.min((TOTAL_CURRENT / 100000) * 100, 100);
+function PhaseTracker({ totalDeposited }) {
+  const pct = Math.min((totalDeposited / 100000) * 100, 100);
   const phase1Pct = (PHASE_1_THRESHOLD / 100000) * 100;
   const phase2Pct = (PHASE_2_THRESHOLD / 100000) * 100;
 
@@ -39,7 +42,7 @@ function PhaseTracker() {
           <Badge color={COLORS.navy}>Active</Badge>
         </div>
         <div className="text-sm tabular-nums font-serif" style={{ color: COLORS.ink }}>
-          {fmtEur(TOTAL_CURRENT)} / {fmtEur(PHASE_1_THRESHOLD)}
+          {fmtEur(Math.round(totalDeposited))} déposés / {fmtEur(PHASE_1_THRESHOLD)}
         </div>
       </div>
 
@@ -100,7 +103,25 @@ function PhaseTracker() {
 }
 
 export default function OverviewView() {
-  const pvPct = ((PV_CURRENT / (TOTAL_CURRENT - PV_CURRENT)) * 100).toFixed(2);
+  const { totalDeposited } = useTotalDeposited();
+  const { cashBalance } = useCashBalance();
+  const { holdings, totals } = usePortfolio();
+
+  const currentValue = totals.totalValue;
+  const totalPEA = currentValue + cashBalance;
+  const unrealizedPL = totals.totalUnrealizedPL;
+  const unrealizedPLPct = totals.totalUnrealizedPLPct;
+  const hasLive = currentValue > 0;
+  const hasPL = totals.totalInvested > 0 && hasLive;
+
+  const livePortfolioActual = holdings
+    .filter((h) => h.currentValue > 0)
+    .map((h) => ({
+      name: h.label,
+      value: h.currentValue,
+      pct: Number((h.weightPct || 0).toFixed(1)),
+      color: h.color,
+    }));
 
   return (
     <div className="space-y-8 sm:space-y-12">
@@ -110,21 +131,45 @@ export default function OverviewView() {
         subtitle="Le S&P 500 est le cœur assumé du portefeuille. En phase capitalisation, la priorité est d'alimenter le PEA régulièrement — pas l'optimisation allocative."
       />
 
-      <PhaseTracker />
+      <PhaseTracker totalDeposited={totalDeposited} />
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-px" style={{ backgroundColor: COLORS.border }}>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock label="Valeur actuelle" value={fmtEur(TOTAL_CURRENT)} large accent={COLORS.ink} />
+          <StatBlock
+            label="Total PEA"
+            value={hasLive ? fmtEur(Math.round(totalPEA)) : '—'}
+            sub={hasLive ? `Titres ${fmtEur(Math.round(currentValue))} + espèces ${fmtEur(Math.round(cashBalance))}` : null}
+            large
+            accent={COLORS.ink}
+          />
         </div>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock label="Plus-value latente" value={`+${fmtEur(PV_CURRENT)}`} sub={`+${pvPct} %`} accent={COLORS.forest} large />
+          <StatBlock
+            label="Évaluation titres"
+            value={hasLive ? fmtEur(Math.round(currentValue)) : '—'}
+            sub={`${holdings.length} ETF UCITS`}
+            large
+            accent={COLORS.navy}
+          />
         </div>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock label="Lignes actuelles" value="3" sub="ETF UCITS capitalisants" large />
+          <StatBlock
+            label="Plus-value latente"
+            value={hasPL ? `${unrealizedPL >= 0 ? '+' : ''}${fmtEur(Math.round(unrealizedPL))}` : '—'}
+            sub={hasPL ? `${unrealizedPL >= 0 ? '+' : ''}${unrealizedPLPct.toFixed(2)} %` : null}
+            accent={unrealizedPL >= 0 ? COLORS.forest : COLORS.rust}
+            large
+          />
         </div>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock label="Cible phase 1" value="5–6" sub="3 ETF + 2–3 actions" accent={COLORS.sand} large />
+          <StatBlock
+            label="Solde espèces"
+            value={fmtEur(Math.round(cashBalance))}
+            sub="Cash non investi"
+            accent={COLORS.sand}
+            large
+          />
         </div>
       </div>
 
@@ -141,7 +186,7 @@ export default function OverviewView() {
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie
-                data={portfolioActual}
+                data={livePortfolioActual}
                 dataKey="pct"
                 nameKey="name"
                 cx="50%"
@@ -152,7 +197,7 @@ export default function OverviewView() {
                 label={({ pct }) => `${pct}%`}
                 labelLine={false}
               >
-                {portfolioActual.map((e, i) => (
+                {livePortfolioActual.map((e, i) => (
                   <Cell key={i} fill={e.color} />
                 ))}
               </Pie>
@@ -160,7 +205,7 @@ export default function OverviewView() {
             </PieChart>
           </ResponsiveContainer>
           <div className="mt-4 space-y-2">
-            {portfolioActual.map((p) => (
+            {livePortfolioActual.map((p) => (
               <div
                 key={p.name}
                 className="flex items-center justify-between text-sm py-1.5 border-b last:border-0 border-border"
@@ -238,8 +283,8 @@ export default function OverviewView() {
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {milestones.map((m) => {
-            const progress = Math.min((TOTAL_CURRENT / m.value) * 100, 100);
-            const reached = TOTAL_CURRENT >= m.value;
+            const progress = Math.min((totalDeposited / m.value) * 100, 100);
+            const reached = totalDeposited >= m.value;
             return (
               <div key={m.label} className="relative">
                 <div className="text-[11px] uppercase tracking-[0.15em] mb-2 sm:mb-3" style={{ color: COLORS.inkLight }}>

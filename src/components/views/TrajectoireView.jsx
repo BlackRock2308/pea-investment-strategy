@@ -6,7 +6,8 @@ import {
 import { Target, TrendingUp, Flag, Calendar } from 'lucide-react';
 import { COLORS, colorWithAlpha } from '../../theme/colors';
 import { fmtEur, fmt } from '../../utils/formatters';
-import { TOTAL_CURRENT, PHASE_1_THRESHOLD, PHASE_2_THRESHOLD } from '../../data/portfolio';
+import { PHASE_1_THRESHOLD, PHASE_2_THRESHOLD } from '../../data/portfolio';
+import useTotalDeposited from '../../hooks/useTotalDeposited';
 import Card from '../ui/Card';
 import StatBlock from '../ui/StatBlock';
 import SectionTitle from '../ui/SectionTitle';
@@ -70,23 +71,24 @@ const ANNUAL_RATE = 8.5;
 // ---------------------------------------------------------------------------
 
 export default function TrajectoireView() {
+  const { totalDeposited } = useTotalDeposited();
   const [dca, setDca] = useState(300);
-  const remaining = PHASE_1_THRESHOLD - TOTAL_CURRENT;
-  const progressPct = (TOTAL_CURRENT / PHASE_1_THRESHOLD) * 100;
+  const remaining = PHASE_1_THRESHOLD - totalDeposited;
+  const progressPct = (totalDeposited / PHASE_1_THRESHOLD) * 100;
 
-  const monthsTo20k = useMemo(() => computeMonthsToTarget(TOTAL_CURRENT, dca, ANNUAL_RATE, PHASE_1_THRESHOLD), [dca]);
+  const monthsTo20k = useMemo(() => computeMonthsToTarget(totalDeposited, dca, ANNUAL_RATE, PHASE_1_THRESHOLD), [totalDeposited, dca]);
   const exitDate = useMemo(() => monthsTo20k ? addMonths(START_DATE, monthsTo20k) : null, [monthsTo20k]);
   const exitDateStr = useMemo(() => exitDate ? monthLabel(exitDate) : '—', [exitDate]);
 
-  const monthlyData = useMemo(() => projectMonthly(TOTAL_CURRENT, dca, ANNUAL_RATE, 8), [dca]);
+  const monthlyData = useMemo(() => projectMonthly(totalDeposited, dca, ANNUAL_RATE, 8), [totalDeposited, dca]);
 
   const endOf2026 = monthlyData[monthlyData.length - 1];
   const totalApports2026 = monthlyData.reduce((s, r) => s + r.apport, 0);
   const totalPV2026 = monthlyData.reduce((s, r) => s + r.plusValue, 0);
-  const gain2026 = endOf2026.capitalFin - TOTAL_CURRENT;
+  const gain2026 = endOf2026.capitalFin - totalDeposited;
 
   const dcaComparison = useMemo(() => DCA_VARIANTS.map((m) => {
-    const months = computeMonthsToTarget(TOTAL_CURRENT, m, ANNUAL_RATE, PHASE_1_THRESHOLD);
+    const months = computeMonthsToTarget(totalDeposited, m, ANNUAL_RATE, PHASE_1_THRESHOLD);
     const date = months ? addMonths(START_DATE, months) : null;
     return {
       dca: m,
@@ -94,11 +96,11 @@ export default function TrajectoireView() {
       dateStr: date ? monthLabel(date) : '—',
       isActive: m === dca,
     };
-  }), [dca]);
+  }), [totalDeposited, dca]);
 
   const milestones = useMemo(() => {
     const entries = [
-      { label: 'Aujourd\'hui', value: TOTAL_CURRENT, date: 'Avr. 2026', color: COLORS.ink, reached: true },
+      { label: 'Aujourd\'hui', value: totalDeposited, date: 'Avr. 2026', color: COLORS.ink, reached: true },
     ];
 
     const targets = [
@@ -109,18 +111,18 @@ export default function TrajectoireView() {
     const r = computeMonthlyRate(ANNUAL_RATE);
     for (const t of targets) {
       const monthsToEnd = (t.yearEnd - 2026) * 12 + (12 - START_DATE.getMonth());
-      let balance = TOTAL_CURRENT;
+      let balance = totalDeposited;
       for (let m = 0; m < monthsToEnd; m++) balance = balance * (1 + r) + dca;
       entries.push({ label: t.label, value: Math.round(balance), date: `Déc. ${t.yearEnd}`, color: t.color, reached: false });
     }
 
-    const phase1Months = computeMonthsToTarget(TOTAL_CURRENT, dca, ANNUAL_RATE, PHASE_1_THRESHOLD);
+    const phase1Months = computeMonthsToTarget(totalDeposited, dca, ANNUAL_RATE, PHASE_1_THRESHOLD);
     if (phase1Months) {
       const d = addMonths(START_DATE, phase1Months);
       entries.push({ label: '20 000 €', value: PHASE_1_THRESHOLD, date: monthLabel(d), color: COLORS.sand, reached: false, highlight: true });
     }
 
-    const phase2Months = computeMonthsToTarget(TOTAL_CURRENT, dca, ANNUAL_RATE, PHASE_2_THRESHOLD);
+    const phase2Months = computeMonthsToTarget(totalDeposited, dca, ANNUAL_RATE, PHASE_2_THRESHOLD);
     if (phase2Months) {
       const d = addMonths(START_DATE, phase2Months);
       entries.push({ label: '80 000 €', value: PHASE_2_THRESHOLD, date: monthLabel(d), color: COLORS.forest, reached: false });
@@ -128,7 +130,7 @@ export default function TrajectoireView() {
 
     entries.sort((a, b) => a.value - b.value);
     return entries;
-  }, [dca]);
+  }, [totalDeposited, dca]);
 
   const graduations = [0, 5000, 10000, 15000, 20000];
 
@@ -158,7 +160,7 @@ export default function TrajectoireView() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-8" style={{ backgroundColor: COLORS.border }}>
           <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-5">
-            <StatBlock label="Capital actuel" value={fmtEur(Math.round(TOTAL_CURRENT))} accent={COLORS.ink} large />
+            <StatBlock label="Capital déposé" value={fmtEur(Math.round(totalDeposited))} accent={COLORS.ink} large />
           </div>
           <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-5">
             <StatBlock label="Capital cible" value={fmtEur(PHASE_1_THRESHOLD)} accent={COLORS.sand} large />
@@ -318,14 +320,14 @@ export default function TrajectoireView() {
 
           {/* Stacked horizontal bar */}
           <div className="flex h-8 rounded overflow-hidden mb-4">
-            <div style={{ width: `${(TOTAL_CURRENT / endOf2026.capitalFin) * 100}%`, backgroundColor: COLORS.inkMid }} />
+            <div style={{ width: `${(totalDeposited / endOf2026.capitalFin) * 100}%`, backgroundColor: COLORS.inkMid }} />
             <div style={{ width: `${(totalApports2026 / endOf2026.capitalFin) * 100}%`, backgroundColor: COLORS.navy }} />
             <div style={{ width: `${(totalPV2026 / endOf2026.capitalFin) * 100}%`, backgroundColor: COLORS.forest }} />
           </div>
 
           <div className="space-y-3">
             {[
-              { label: 'Capital initial', value: TOTAL_CURRENT, color: COLORS.inkMid },
+              { label: 'Capital initial', value: totalDeposited, color: COLORS.inkMid },
               { label: 'Apports DCA cumulés', value: totalApports2026, color: COLORS.navy, sub: `${monthlyData.length} mois × ${fmtEur(dca)}` },
               { label: 'Plus-values estimées', value: totalPV2026, color: COLORS.forest, sub: 'Rendement 8,5 % annualisé' },
             ].map((item) => (

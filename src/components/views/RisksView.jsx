@@ -1,6 +1,6 @@
 import { COLORS, colorWithAlpha } from '../../theme/colors';
 import { risques } from '../../data/risks';
-import { TOTAL_CURRENT } from '../../data/portfolio';
+import useTotalDeposited from '../../hooks/useTotalDeposited';
 import Card from '../ui/Card';
 import SectionTitle from '../ui/SectionTitle';
 import Badge from '../ui/Badge';
@@ -47,7 +47,8 @@ const phases = [
 ];
 
 export default function RisksView() {
-  const currentPhaseIdx = TOTAL_CURRENT < 20000 ? 0 : TOTAL_CURRENT < 80000 ? 1 : 2;
+  const { totalDeposited } = useTotalDeposited();
+  const currentPhaseIdx = totalDeposited < 20000 ? 0 : totalDeposited < 80000 ? 1 : 2;
 
   return (
     <div className="space-y-8 sm:space-y-12">

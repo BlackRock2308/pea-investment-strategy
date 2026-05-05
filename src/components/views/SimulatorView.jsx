@@ -3,7 +3,8 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, R
 import { COLORS } from '../../theme/colors';
 import { fmtEur } from '../../utils/formatters';
 import { projectPortfolio } from '../../utils/calculations';
-import { TOTAL_CURRENT, PHASE_1_THRESHOLD, PHASE_2_THRESHOLD, PEA_CEILING } from '../../data/portfolio';
+import { PHASE_1_THRESHOLD, PHASE_2_THRESHOLD, PEA_CEILING } from '../../data/portfolio';
+import useTotalDeposited from '../../hooks/useTotalDeposited';
 import Card from '../ui/Card';
 import StatBlock from '../ui/StatBlock';
 import SectionTitle from '../ui/SectionTitle';
@@ -27,11 +28,12 @@ function computePhase1Exit(initial, monthly, annualRate) {
 }
 
 export default function SimulatorView() {
+  const { totalDeposited } = useTotalDeposited();
   const [monthly, setMonthly] = useState(300);
   const [years, setYears] = useState(20);
   const [rate, setRate] = useState(8.5);
 
-  const data = useMemo(() => projectPortfolio(Math.round(TOTAL_CURRENT), monthly, years, rate), [monthly, years, rate]);
+  const data = useMemo(() => projectPortfolio(Math.round(totalDeposited), monthly, years, rate), [totalDeposited, monthly, years, rate]);
   const final = data[data.length - 1];
   const totalApports = final.apports;
   const totalPV = final.plusValue;
@@ -41,7 +43,7 @@ export default function SimulatorView() {
   const ctoAmount = totalPV * 0.3;
   const gainFiscal = ctoAmount - psAmount;
 
-  const phase1Exit = useMemo(() => computePhase1Exit(TOTAL_CURRENT, monthly, rate), [monthly, rate]);
+  const phase1Exit = useMemo(() => computePhase1Exit(totalDeposited, monthly, rate), [totalDeposited, monthly, rate]);
 
   const maxCapital = final.capital;
   const showPhase1Line = PHASE_1_THRESHOLD < maxCapital;
@@ -53,7 +55,7 @@ export default function SimulatorView() {
       <SectionTitle
         number="II"
         title="Simulateur de projection"
-        subtitle={`Ajuste les paramètres pour visualiser l'effet de la capitalisation composée sur ton PEA. Portefeuille de départ ${fmtEur(Math.round(TOTAL_CURRENT))}.`}
+        subtitle={`Ajuste les paramètres pour visualiser l'effet de la capitalisation composée sur ton PEA. Portefeuille de départ ${fmtEur(Math.round(totalDeposited))}.`}
       />
 
       <Card padding="p-5 sm:p-10">

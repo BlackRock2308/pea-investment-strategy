@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ETF_HOLDINGS } from '../data/portfolio';
 import { fetchQuotes, AUTO_REFRESH_INTERVAL } from '../services/etfPriceService';
 
-const SHARES_KEY = 'pea_etf_holdings';
-const MANUAL_KEY = 'pea_etf_manual_prices';
+const SHARES_KEY = 'pea_etf_holdings_v2';
+const MANUAL_KEY = 'pea_etf_manual_prices_v2';
+const COST_BASIS_KEY = 'pea_etf_cost_basis_v2';
 
 function loadJson(key) {
   try {
@@ -22,6 +23,7 @@ function saveJson(key, value) {
 export default function usePortfolio() {
   const [holdings, setHoldings] = useState(() => loadJson(SHARES_KEY));
   const [manualPrices, setManualPrices] = useState(() => loadJson(MANUAL_KEY));
+  const [costBasisOverrides, setCostBasisOverrides] = useState(() => loadJson(COST_BASIS_KEY));
   const [prices, setPrices] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -79,6 +81,29 @@ export default function usePortfolio() {
     });
   }, []);
 
+  const setCostBasis = useCallback((etfId, value) => {
+    setCostBasisOverrides((prev) => {
+      const next = { ...prev };
+      const num = Number(value);
+      if (value === '' || value == null || !Number.isFinite(num) || num < 0) {
+        delete next[etfId];
+      } else {
+        next[etfId] = num;
+      }
+      saveJson(COST_BASIS_KEY, next);
+      return next;
+    });
+  }, []);
+
+  const clearCostBasis = useCallback((etfId) => {
+    setCostBasisOverrides((prev) => {
+      const next = { ...prev };
+      delete next[etfId];
+      saveJson(COST_BASIS_KEY, next);
+      return next;
+    });
+  }, []);
+
   const enrichedHoldings = useMemo(() => {
     const items = ETF_HOLDINGS.map((etf) => {
       const quote = prices?.[etf.ticker];
@@ -87,8 +112,12 @@ export default function usePortfolio() {
       const manualPrice = manualPrices[etf.id];
       const isManual = manualPrice != null && manualPrice > 0;
       const price = isManual ? manualPrice : livePrice;
-      const shares = holdings[etf.id] || 0;
+      const shares = holdings[etf.id] ?? etf.shares;
+      const costBasis = costBasisOverrides[etf.id] ?? etf.costBasis ?? 0;
+      const invested = shares * costBasis;
       const currentValue = shares * price;
+      const unrealizedPL = costBasis > 0 ? currentValue - invested : 0;
+      const unrealizedPLPct = invested > 0 ? (unrealizedPL / invested) * 100 : 0;
 
       const change = isManual
         ? (previousClose > 0 ? price - previousClose : 0)
@@ -113,8 +142,12 @@ export default function usePortfolio() {
         shortName: quote?.shortName ?? etf.label,
         cached: !!quote?.cached,
         stale: !!quote?.stale,
+        costBasis,
+        invested,
         currentValue,
         dailyPL,
+        unrealizedPL,
+        unrealizedPLPct,
       };
     });
 
@@ -127,16 +160,28 @@ export default function usePortfolio() {
         ? (item.currentValue / totalValue) * 100 - item.targetPct
         : 0,
     }));
-  }, [prices, holdings, manualPrices]);
+  }, [prices, holdings, manualPrices, costBasisOverrides]);
 
   const totals = useMemo(() => {
     const totalValue = enrichedHoldings.reduce((s, i) => s + (i.currentValue || 0), 0);
+    const totalInvested = enrichedHoldings.reduce((s, i) => s + (i.invested || 0), 0);
     const totalDailyPL = enrichedHoldings.reduce((s, i) => s + (i.dailyPL || 0), 0);
     const totalDailyPLPct = totalValue > 0 && totalValue - totalDailyPL > 0
       ? (totalDailyPL / (totalValue - totalDailyPL)) * 100
       : 0;
+    const totalUnrealizedPL = totalInvested > 0 ? totalValue - totalInvested : 0;
+    const totalUnrealizedPLPct = totalInvested > 0
+      ? (totalUnrealizedPL / totalInvested) * 100
+      : 0;
 
-    return { totalValue, totalDailyPL, totalDailyPLPct };
+    return {
+      totalValue,
+      totalInvested,
+      totalDailyPL,
+      totalDailyPLPct,
+      totalUnrealizedPL,
+      totalUnrealizedPLPct,
+    };
   }, [enrichedHoldings]);
 
   return {
@@ -149,6 +194,8 @@ export default function usePortfolio() {
     updateShares,
     setManualPrice,
     clearManualPrice,
+    setCostBasis,
+    clearCostBasis,
     refreshPrices,
   };
 }

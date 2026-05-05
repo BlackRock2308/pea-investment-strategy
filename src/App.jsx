@@ -11,8 +11,9 @@ import {
   Radio,
 } from 'lucide-react';
 import { COLORS } from './theme/colors';
-import { TOTAL_CURRENT, PHASE_1_THRESHOLD } from './data/portfolio';
+import { PHASE_1_THRESHOLD } from './data/portfolio';
 import { fmtEur } from './utils/formatters';
+import useTotalDeposited from './hooks/useTotalDeposited';
 import OverviewView from './components/views/OverviewView';
 import TrajectoireView from './components/views/TrajectoireView';
 import SimulatorView from './components/views/SimulatorView';
@@ -52,8 +53,9 @@ function getInitialDark() {
 export default function App() {
   const [tab, setTab] = useState('overview');
   const [dark, setDark] = useState(getInitialDark);
+  const { totalDeposited } = useTotalDeposited();
   const ActiveView = VIEW_MAP[tab];
-  const phasePct = Math.min((TOTAL_CURRENT / PHASE_1_THRESHOLD) * 100, 100);
+  const phasePct = Math.min((totalDeposited / PHASE_1_THRESHOLD) * 100, 100);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -88,7 +90,7 @@ export default function App() {
                 </h1>
                 <div className="flex items-center gap-3 mt-1.5 sm:mt-2">
                   <span className="text-xs sm:text-sm" style={{ color: COLORS.inkMid }}>
-                    Phase 1 · Capitalisation · {fmtEur(Math.round(TOTAL_CURRENT))} / {fmtEur(PHASE_1_THRESHOLD)}
+                    Phase 1 · Capitalisation · {fmtEur(Math.round(totalDeposited))} déposés / {fmtEur(PHASE_1_THRESHOLD)}
                   </span>
                 </div>
                 <div className="mt-1.5 flex items-center gap-3">

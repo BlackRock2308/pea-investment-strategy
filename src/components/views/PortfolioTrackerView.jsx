@@ -2,7 +2,10 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis
 import { RefreshCw, TrendingUp, TrendingDown, Clock, Wifi, WifiOff, AlertCircle } from 'lucide-react';
 import { COLORS, colorWithAlpha } from '../../theme/colors';
 import { fmtEur } from '../../utils/formatters';
+import { useState, useEffect } from 'react';
 import usePortfolio from '../../hooks/usePortfolio';
+import useTotalDeposited from '../../hooks/useTotalDeposited';
+import useCashBalance from '../../hooks/useCashBalance';
 import Card from '../ui/Card';
 import StatBlock from '../ui/StatBlock';
 import SectionTitle from '../ui/SectionTitle';
@@ -55,12 +58,23 @@ export default function PortfolioTrackerView() {
     updateShares,
     setManualPrice,
     clearManualPrice,
+    setCostBasis,
     refreshPrices,
     prices,
   } = usePortfolio();
+  const { totalDeposited, setTotalDeposited } = useTotalDeposited();
+  const { cashBalance, setCashBalance } = useCashBalance();
+  const [depositedDraft, setDepositedDraft] = useState(String(totalDeposited));
+  const [cashDraft, setCashDraft] = useState(String(cashBalance));
+  useEffect(() => { setDepositedDraft(String(totalDeposited)); }, [totalDeposited]);
+  useEffect(() => { setCashDraft(String(cashBalance)); }, [cashBalance]);
+
   const hasPrices = prices !== null && Object.keys(prices || {}).length > 0;
   const hasShares = holdings.some((h) => h.shares > 0);
   const hasAnyPrice = holdings.some((h) => h.price > 0);
+
+  const showUnrealized = hasShares && hasAnyPrice && totals.totalInvested > 0;
+  const totalPEA = totals.totalValue + cashBalance;
 
   const allocationData = holdings
     .filter((h) => h.currentValue > 0)
@@ -126,13 +140,67 @@ export default function PortfolioTrackerView() {
       )}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-px" style={{ backgroundColor: COLORS.border }}>
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-px" style={{ backgroundColor: COLORS.border }}>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
           <StatBlock
-            label="Valeur du portefeuille"
+            label="Évaluation titres"
             value={hasShares ? fmtEur(Math.round(totals.totalValue)) : '—'}
+            sub={hasShares ? `Total PEA ${fmtEur(Math.round(totalPEA))}` : null}
             large
             accent={COLORS.ink}
+          />
+        </div>
+        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
+          <div className="text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>
+            Solde espèces
+          </div>
+          <div className="mt-2 flex items-baseline gap-1">
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={cashDraft}
+              onChange={(e) => setCashDraft(e.target.value)}
+              onBlur={() => setCashBalance(cashDraft)}
+              onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+              className="w-24 sm:w-28 text-2xl sm:text-3xl font-light tabular-nums bg-transparent border-b focus:outline-none"
+              style={{ color: COLORS.ink, borderColor: COLORS.border }}
+            />
+            <span className="text-lg" style={{ color: COLORS.inkLight }}>€</span>
+          </div>
+          <div className="text-[10px] mt-1" style={{ color: COLORS.inkLight }}>
+            Cash non investi · modifiable
+          </div>
+        </div>
+        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
+          <div className="text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>
+            Cumul versements
+          </div>
+          <div className="mt-2 flex items-baseline gap-1">
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={depositedDraft}
+              onChange={(e) => setDepositedDraft(e.target.value)}
+              onBlur={() => setTotalDeposited(depositedDraft)}
+              onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+              className="w-24 sm:w-28 text-2xl sm:text-3xl font-light tabular-nums bg-transparent border-b focus:outline-none"
+              style={{ color: COLORS.ink, borderColor: COLORS.border }}
+            />
+            <span className="text-lg" style={{ color: COLORS.inkLight }}>€</span>
+          </div>
+          <div className="text-[10px] mt-1" style={{ color: COLORS.inkLight }}>
+            Cash déposé sur le PEA · modifiable
+          </div>
+        </div>
+        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
+          <StatBlock
+            label="+/- Latente"
+            value={showUnrealized ? `${totals.totalUnrealizedPL >= 0 ? '+' : ''}${fmtEur(Math.round(totals.totalUnrealizedPL))}` : '—'}
+            sub={showUnrealized ? `${totals.totalUnrealizedPL >= 0 ? '+' : ''}${totals.totalUnrealizedPLPct.toFixed(2)} %` : null}
+            accent={totals.totalUnrealizedPL >= 0 ? COLORS.forest : COLORS.rust}
+            large
           />
         </div>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
@@ -141,18 +209,6 @@ export default function PortfolioTrackerView() {
             value={hasShares ? `${totals.totalDailyPL >= 0 ? '+' : ''}${fmtEur(Math.round(totals.totalDailyPL))}` : '—'}
             sub={hasShares ? `${totals.totalDailyPLPct >= 0 ? '+' : ''}${totals.totalDailyPLPct.toFixed(2)} %` : null}
             accent={totals.totalDailyPL >= 0 ? COLORS.forest : COLORS.rust}
-            large
-          />
-        </div>
-        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock label="ETFs suivis" value={String(holdings.length)} sub="UCITS capitalisants" large />
-        </div>
-        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock
-            label="Rafraîchissement"
-            value="5 min"
-            sub="Boursorama"
-            accent={COLORS.sand}
             large
           />
         </div>
@@ -165,7 +221,7 @@ export default function PortfolioTrackerView() {
             Détail des positions
           </h3>
           <p className="text-xs mt-1" style={{ color: COLORS.inkLight }}>
-            Entrez le nombre de parts pour chaque ETF. Les données sont sauvegardées localement.
+            Parts et prix de revient sont modifiables. La +/- latente est calculée comme (Cours − Px. Revient) × Parts.
           </p>
         </div>
 
@@ -177,7 +233,9 @@ export default function PortfolioTrackerView() {
                 <th className="text-right px-4 py-3 text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>Cours (€)</th>
                 <th className="text-right px-4 py-3 text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>Variation</th>
                 <th className="text-center px-4 py-3 text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>Parts</th>
+                <th className="text-right px-4 py-3 text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>Px. Revient</th>
                 <th className="text-right px-4 py-3 text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>Valeur</th>
+                <th className="text-right px-4 py-3 text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>+/- Latente</th>
                 <th className="text-right px-4 py-3 text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>Poids</th>
                 <th className="text-right px-5 sm:px-8 py-3 text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>Cible</th>
               </tr>
@@ -262,8 +320,39 @@ export default function PortfolioTrackerView() {
                       onBlur={(e) => { e.target.style.borderColor = COLORS.border; }}
                     />
                   </td>
+                  <td className="text-right px-4 py-4 whitespace-nowrap">
+                    <div className="inline-flex items-center gap-1">
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={etf.costBasis || ''}
+                        onChange={(e) => setCostBasis(etf.id, e.target.value)}
+                        placeholder="0.00"
+                        className="w-20 text-right py-1.5 px-2 rounded border text-sm tabular-nums"
+                        style={{ borderColor: COLORS.border, backgroundColor: COLORS.cream, color: COLORS.ink, outline: 'none' }}
+                        onFocus={(e) => { e.target.style.borderColor = COLORS.sand; }}
+                        onBlur={(e) => { e.target.style.borderColor = COLORS.border; }}
+                      />
+                      <span className="tabular-nums" style={{ color: COLORS.inkLight }}>€</span>
+                    </div>
+                  </td>
                   <td className="text-right px-4 py-4 tabular-nums font-medium whitespace-nowrap" style={{ color: COLORS.ink }}>
                     {etf.shares > 0 && etf.price ? fmtEur(Math.round(etf.currentValue)) : '—'}
+                  </td>
+                  <td className="text-right px-4 py-4 whitespace-nowrap">
+                    {etf.invested > 0 && etf.currentValue > 0 ? (
+                      <div className="flex flex-col items-end leading-tight tabular-nums">
+                        <span className="font-medium" style={{ color: etf.unrealizedPL >= 0 ? COLORS.forest : COLORS.rust }}>
+                          {etf.unrealizedPL >= 0 ? '+' : ''}{fmtEur(Math.round(etf.unrealizedPL))}
+                        </span>
+                        <span className="text-[10px]" style={{ color: etf.unrealizedPL >= 0 ? COLORS.forest : COLORS.rust }}>
+                          {etf.unrealizedPL >= 0 ? '+' : ''}{etf.unrealizedPLPct.toFixed(2)}%
+                        </span>
+                      </div>
+                    ) : (
+                      <span style={{ color: COLORS.inkLight }}>—</span>
+                    )}
                   </td>
                   <td className="text-right px-4 py-4 tabular-nums whitespace-nowrap" style={{ color: COLORS.inkMid }}>
                     {etf.weightPct > 0 ? `${etf.weightPct.toFixed(1)}%` : '—'}
@@ -283,8 +372,23 @@ export default function PortfolioTrackerView() {
                     <PriceChange change={totals.totalDailyPL} changePct={totals.totalDailyPLPct} />
                   </td>
                   <td />
+                  <td className="text-right px-4 py-4 tabular-nums" style={{ color: COLORS.inkMid }}>
+                    {totals.totalInvested > 0 ? fmtEur(Math.round(totals.totalInvested)) : '—'}
+                  </td>
                   <td className="text-right px-4 py-4 tabular-nums font-medium text-base" style={{ color: COLORS.ink }}>
                     {fmtEur(Math.round(totals.totalValue))}
+                  </td>
+                  <td className="text-right px-4 py-4 whitespace-nowrap">
+                    {totals.totalInvested > 0 ? (
+                      <div className="flex flex-col items-end leading-tight tabular-nums font-medium">
+                        <span style={{ color: totals.totalUnrealizedPL >= 0 ? COLORS.forest : COLORS.rust }}>
+                          {totals.totalUnrealizedPL >= 0 ? '+' : ''}{fmtEur(Math.round(totals.totalUnrealizedPL))}
+                        </span>
+                        <span className="text-[10px]" style={{ color: totals.totalUnrealizedPL >= 0 ? COLORS.forest : COLORS.rust }}>
+                          {totals.totalUnrealizedPL >= 0 ? '+' : ''}{totals.totalUnrealizedPLPct.toFixed(2)}%
+                        </span>
+                      </div>
+                    ) : <span style={{ color: COLORS.inkLight }}>—</span>}
                   </td>
                   <td className="text-right px-4 py-4 tabular-nums font-medium" style={{ color: COLORS.ink }}>100%</td>
                   <td />
