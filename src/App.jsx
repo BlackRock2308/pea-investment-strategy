@@ -80,7 +80,7 @@ export default function App() {
                   className="text-[10px] uppercase tracking-[0.3em] font-medium mb-1 sm:mb-2"
                   style={{ color: COLORS.sand }}
                 >
-                  Rapport stratégique — Avril 2026
+                  Rapport stratégique — Mai 2026
                 </div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal font-serif" style={{ color: COLORS.ink }}>
                   Portefeuille PEA
@@ -179,7 +179,7 @@ export default function App() {
             Les performances passées ne préjugent pas des performances futures.
           </div>
           <div className="text-[10px] uppercase tracking-[0.2em] font-medium flex-shrink-0" style={{ color: COLORS.sand }}>
-            Version 3 · 30 avril 2026
+            Version 4 · 29 mai 2026
           </div>
         </div>
       </footer>

@@ -1,8 +1,8 @@
 import { COLORS } from '../theme/colors';
 
 export const ETF_HOLDINGS = [
-  { id: 'sp500',    isin: 'FR0011550185', ticker: 'ESE.PA',   boursoCode: '1rTESE',   label: 'BNP Easy S&P 500',    shares: 77, costBasis: 30.07, targetPct: 52, color: COLORS.navy },
-  { id: 'stoxx600', isin: 'FR0011550193', ticker: 'ETZ.PA',   boursoCode: '1rTETZ',   label: 'BNP Easy Stoxx 600',  shares: 36, costBasis: 19.98, targetPct: 22, color: COLORS.sand },
+  { id: 'sp500',    isin: 'FR0011550185', ticker: 'ESE.PA',   boursoCode: '1rTESE',   label: 'BNP Easy S&P 500',    shares: 84, costBasis: 30.31, targetPct: 52, color: COLORS.navy },
+  { id: 'stoxx600', isin: 'FR0011550193', ticker: 'ETZ.PA',   boursoCode: '1rTETZ',   label: 'BNP Easy Stoxx 600',  shares: 46, costBasis: 20.15, targetPct: 22, color: COLORS.sand },
   { id: 'emerging', isin: 'FR0013412020', ticker: 'PAEEM.PA', boursoCode: '1rTPAEEM', label: 'Amundi PEA Emerging', shares: 21, costBasis: 30.06, targetPct: 13, color: COLORS.forest },
 ];
 
@@ -13,7 +13,7 @@ export const portfolioTarget = [
   { name: 'Actions dividendes',  value: 13, color: COLORS.plum,   desc: '2–3 lignes max en phase 1' },
 ];
 
-export const TOTAL_DEPOSITED_DEFAULT = 3731;
+export const TOTAL_DEPOSITED_DEFAULT = 4120;
 
 export const PHASE_1_THRESHOLD = 20000;
 export const PHASE_2_THRESHOLD = 80000;

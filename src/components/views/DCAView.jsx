@@ -17,12 +17,14 @@ const TYPE_CONFIG = {
   flex: { label: 'Flexible', color: COLORS.forest },
 };
 
+const DEFAULT_DONE = ['M1', 'M2'];
+
 function loadDoneSet() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? new Set(JSON.parse(raw)) : new Set();
+    return raw ? new Set(JSON.parse(raw)) : new Set(DEFAULT_DONE);
   } catch {
-    return new Set();
+    return new Set(DEFAULT_DONE);
   }
 }
 

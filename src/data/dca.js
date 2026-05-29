@@ -1,6 +1,6 @@
 export const dcaSchedule = [
-  { id: 'M1', mois: 'M1', label: 'Mai 26', action: 'ESE (S&P 500)', qte: '10 parts', montant: 300, type: 'etf-us' },
-  { id: 'M2', mois: 'M2', label: 'Juin', action: 'Stoxx 600', qte: '15 parts', montant: 300, type: 'etf-eu' },
+  { id: 'M1', mois: 'M1', label: 'Juin 26', action: 'ESE (S&P 500)', qte: '7 parts', montant: 230, type: 'etf-us' },
+  { id: 'M2', mois: 'M2', label: 'Juin 26', action: 'Stoxx 600', qte: '10 parts', montant: 207, type: 'etf-eu' },
   { id: 'M3', mois: 'M3', label: 'Juil', action: 'ESE (S&P 500)', qte: '10 parts', montant: 300, type: 'etf-us' },
   { id: 'M4', mois: 'M4', label: 'Août', action: 'Sanofi', qte: '3 actions', montant: 270, type: 'action' },
   { id: 'M5', mois: 'M5', label: 'Sept', action: 'Stoxx 600', qte: '15 parts', montant: 300, type: 'etf-eu' },

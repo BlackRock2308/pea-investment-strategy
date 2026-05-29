@@ -15,7 +15,7 @@ import Slider from '../ui/Slider';
 import Badge from '../ui/Badge';
 import CustomTooltip from '../ui/CustomTooltip';
 
-const START_DATE = new Date(2026, 3, 30); // 30 avril 2026
+const START_DATE = new Date(2026, 5, 1); // 1 juin 2026
 
 const MONTHS_FR = ['Janv.', 'Fév.', 'Mars', 'Avr.', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'];
 
@@ -80,7 +80,7 @@ export default function TrajectoireView() {
   const exitDate = useMemo(() => monthsTo20k ? addMonths(START_DATE, monthsTo20k) : null, [monthsTo20k]);
   const exitDateStr = useMemo(() => exitDate ? monthLabel(exitDate) : '—', [exitDate]);
 
-  const monthlyData = useMemo(() => projectMonthly(totalDeposited, dca, ANNUAL_RATE, 8), [totalDeposited, dca]);
+  const monthlyData = useMemo(() => projectMonthly(totalDeposited, dca, ANNUAL_RATE, 6), [totalDeposited, dca]);
 
   const endOf2026 = monthlyData[monthlyData.length - 1];
   const totalApports2026 = monthlyData.reduce((s, r) => s + r.apport, 0);
@@ -100,7 +100,7 @@ export default function TrajectoireView() {
 
   const milestones = useMemo(() => {
     const entries = [
-      { label: 'Aujourd\'hui', value: totalDeposited, date: 'Avr. 2026', color: COLORS.ink, reached: true },
+      { label: 'Aujourd\'hui', value: totalDeposited, date: 'Juin 2026', color: COLORS.ink, reached: true },
     ];
 
     const targets = [
@@ -209,7 +209,7 @@ export default function TrajectoireView() {
       </Card>
 
       {/* ------------------------------------------------------------------ */}
-      {/* 2. Projection mensuelle — Mai à Décembre 2026 */}
+      {/* 2. Projection mensuelle — Juil à Décembre 2026 */}
       {/* ------------------------------------------------------------------ */}
       <Card padding="p-4 sm:p-8">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">

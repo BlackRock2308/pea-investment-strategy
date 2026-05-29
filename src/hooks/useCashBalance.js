@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'pea_cash_balance';
-const DEFAULT_CASH = 65.49;
+const DEFAULT_CASH = 15.80;
 
 function load() {
   try {

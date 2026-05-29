@@ -181,7 +181,11 @@ export default function OverviewView() {
             <h3 className="text-lg font-normal font-serif" style={{ color: COLORS.ink }}>
               Allocation actuelle
             </h3>
-            <Badge color={COLORS.navy}>59 % USA</Badge>
+            {(() => {
+              const sp500 = livePortfolioActual.find((p) => p.name.includes('S&P 500'));
+              const usaPct = sp500 ? Math.round(sp500.pct) : 0;
+              return usaPct > 0 ? <Badge color={COLORS.navy}>{usaPct} % USA</Badge> : null;
+            })()}
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
