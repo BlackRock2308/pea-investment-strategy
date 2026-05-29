@@ -7,7 +7,7 @@ import Badge from '../ui/Badge';
 
 const investmentRules = [
   { text: 'Maximiser le DCA mensuel — l\'allocation se précisera avec le volume.', active: true },
-  { text: 'DCA automatique 300 €/mois, sans exception, quelle que soit la conjoncture.', active: true },
+  { text: 'DCA automatique 400 €/mois, sans exception, quelle que soit la conjoncture.', active: true },
   { text: 'Pas de market timing : ne jamais suspendre le DCA sur anticipation de baisse.', active: true },
   { text: 'Renforts exceptionnels autorisés uniquement sur drawdowns > −20 %.', active: true },
   { text: 'Rééquilibrage semestriel par flux entrants (jamais par vente).', active: false, note: 'Actif à partir de 20 000 €' },

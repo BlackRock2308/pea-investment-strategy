@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ETF_HOLDINGS } from '../data/portfolio';
 import { fetchQuotes, AUTO_REFRESH_INTERVAL } from '../services/etfPriceService';
 
-const SHARES_KEY = 'pea_etf_holdings_v2';
-const MANUAL_KEY = 'pea_etf_manual_prices_v2';
-const COST_BASIS_KEY = 'pea_etf_cost_basis_v2';
+const SHARES_KEY = 'pea_etf_holdings_v3';
+const MANUAL_KEY = 'pea_etf_manual_prices_v3';
+const COST_BASIS_KEY = 'pea_etf_cost_basis_v3';
 
 function loadJson(key) {
   try {

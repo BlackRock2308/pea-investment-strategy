@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { TOTAL_DEPOSITED_DEFAULT } from '../data/portfolio';
 
-const STORAGE_KEY = 'pea_versements';
+const STORAGE_KEY = 'pea_versements_v2';
 
 function load() {
   try {

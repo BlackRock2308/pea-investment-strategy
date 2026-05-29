@@ -65,14 +65,14 @@ function projectMonthly(initial, monthly, annualRate, numMonths) {
   return rows;
 }
 
-const DCA_VARIANTS = [300, 400, 500, 600];
+const DCA_VARIANTS = [300, 400, 500, 700];
 const ANNUAL_RATE = 8.5;
 
 // ---------------------------------------------------------------------------
 
 export default function TrajectoireView() {
   const { totalDeposited } = useTotalDeposited();
-  const [dca, setDca] = useState(300);
+  const [dca, setDca] = useState(400);
   const remaining = PHASE_1_THRESHOLD - totalDeposited;
   const progressPct = (totalDeposited / PHASE_1_THRESHOLD) * 100;
 

@@ -8,7 +8,7 @@ import StatBlock from '../ui/StatBlock';
 import SectionTitle from '../ui/SectionTitle';
 import Badge from '../ui/Badge';
 
-const STORAGE_KEY = 'pea_dca_done';
+const STORAGE_KEY = 'pea_dca_done_v2';
 
 const TYPE_CONFIG = {
   'etf-us': { label: 'ETF S&P 500', color: COLORS.navyLight },
@@ -79,12 +79,12 @@ export default function DCAView() {
       <SectionTitle
         number="III"
         title="Plan DCA opérationnel"
-        subtitle="Calendrier des 12 prochains mois — 300 €/mois. ESE redevient un destinataire légitime du DCA : le S&P 500 est le cœur assumé du portefeuille."
+        subtitle="Calendrier des 12 prochains mois — 400 €/mois. ESE redevient un destinataire légitime du DCA : le S&P 500 est le cœur assumé du portefeuille."
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-px" style={{ backgroundColor: COLORS.border }}>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock label="Total sur 12 mois" value={fmtEur(totalAnnuel)} sub="3 600 € prévus" accent={COLORS.ink} large />
+          <StatBlock label="Total sur 12 mois" value={fmtEur(totalAnnuel)} sub="4 800 € prévus" accent={COLORS.ink} large />
         </div>
         <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
           <StatBlock

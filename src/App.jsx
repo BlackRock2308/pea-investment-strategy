@@ -112,7 +112,7 @@ export default function App() {
                   Philosophie
                 </div>
                 <div className="text-sm mt-1 font-serif" style={{ color: COLORS.ink }}>
-                  S&P 500 cœur assumé · DCA 300 €/mois
+                  S&P 500 cœur assumé · DCA 400 €/mois
                 </div>
               </div>
               <button

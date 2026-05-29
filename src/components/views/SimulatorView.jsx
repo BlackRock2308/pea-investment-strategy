@@ -29,7 +29,7 @@ function computePhase1Exit(initial, monthly, annualRate) {
 
 export default function SimulatorView() {
   const { totalDeposited } = useTotalDeposited();
-  const [monthly, setMonthly] = useState(300);
+  const [monthly, setMonthly] = useState(400);
   const [years, setYears] = useState(20);
   const [rate, setRate] = useState(8.5);
 
