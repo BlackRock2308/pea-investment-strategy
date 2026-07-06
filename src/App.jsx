@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { COLORS } from './theme/colors';
 import { PHASE_1_THRESHOLD } from './data/portfolio';
-import { fmtEur } from './utils/formatters';
 import useTotalDeposited from './hooks/useTotalDeposited';
 import OverviewView from './components/views/OverviewView';
 import TrajectoireView from './components/views/TrajectoireView';
@@ -47,7 +46,8 @@ function getInitialDark() {
     const stored = localStorage.getItem('pea_dark_mode');
     if (stored !== null) return stored === 'true';
   } catch {}
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+  // Light is the default; dark only if the user has explicitly opted in before.
+  return false;
 }
 
 export default function App() {
@@ -66,120 +66,95 @@ export default function App() {
 
   return (
     <div className="min-h-screen font-sans" style={{ backgroundColor: COLORS.cream, color: COLORS.ink }}>
-      {/* Premium accent gradient */}
-      <div className="h-0.5" style={{ background: 'linear-gradient(90deg, var(--color-navy), var(--color-sand), var(--color-forest))' }} />
-
       {/* Header */}
-      <header className="border-b" style={{ backgroundColor: COLORS.paper, borderColor: COLORS.border }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-            <div className="flex items-center gap-4 sm:gap-5">
-              <img src="/omaad-pea.svg" alt="OMAAD PEA" className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 flex-shrink-0" />
-              <div>
-                <div
-                  className="text-[10px] uppercase tracking-[0.3em] font-medium mb-1 sm:mb-2"
-                  style={{ color: COLORS.sand }}
-                >
-                  Rapport stratégique — Mai 2026
-                </div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal font-serif" style={{ color: COLORS.ink }}>
-                  Portefeuille PEA
-                  <span className="block sm:inline text-lg sm:text-2xl sm:ml-3 italic" style={{ color: COLORS.inkLight }}>
-                    stratégie long terme
+      <header
+        className="sticky top-0 z-30 backdrop-blur-xl border-b"
+        style={{ backgroundColor: 'color-mix(in srgb, var(--color-cream) 82%, transparent)', borderColor: COLORS.border }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+          {/* Brand row */}
+          <div className="flex items-center justify-between gap-3 py-3 sm:py-4">
+            <div className="flex items-center gap-3">
+              <img src="/omaad-pea.svg" alt="Omaad" className="w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0" />
+              <div className="leading-tight">
+                <div className="flex items-center gap-2">
+                  <span className="text-base sm:text-lg font-extrabold tracking-tight" style={{ color: COLORS.ink }}>
+                    Omaad
                   </span>
-                </h1>
-                <div className="flex items-center gap-3 mt-1.5 sm:mt-2">
-                  <span className="text-xs sm:text-sm" style={{ color: COLORS.inkMid }}>
-                    Phase 1 · Capitalisation · {fmtEur(Math.round(totalDeposited))} déposés / {fmtEur(PHASE_1_THRESHOLD)}
+                  <span className="text-base sm:text-lg font-medium" style={{ color: COLORS.inkLight }}>
+                    Portefeuille PEA
                   </span>
                 </div>
-                <div className="mt-1.5 flex items-center gap-3">
-                  <div className="h-1.5 flex-1 relative rounded-full overflow-hidden" style={{ backgroundColor: COLORS.border, maxWidth: '12rem' }}>
-                    <div
-                      className="absolute left-0 top-0 h-full rounded-full"
-                      style={{ width: `${phasePct}%`, backgroundColor: COLORS.sand }}
-                    />
-                  </div>
-                  <span className="text-[10px] tabular-nums font-medium" style={{ color: COLORS.sand }}>
-                    {phasePct.toFixed(1)} %
-                  </span>
+                <div className="text-[10px] uppercase tracking-[0.22em] font-semibold mt-0.5" style={{ color: COLORS.sand }}>
+                  Construis · Protège · Règne
                 </div>
               </div>
             </div>
-            <div className="flex items-end gap-4">
-              <div className="hidden md:block text-right">
-                <div className="text-[10px] uppercase tracking-[0.2em] font-medium" style={{ color: COLORS.inkLight }}>
-                  Philosophie
-                </div>
-                <div className="text-sm mt-1 font-serif" style={{ color: COLORS.ink }}>
-                  S&P 500 cœur assumé · DCA 400 €/mois
-                </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold"
+                style={{ backgroundColor: COLORS.paper, boxShadow: 'var(--shadow-soft)', color: COLORS.inkMid }}
+              >
+                <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.forest }} />
+                Phase 1
+                <span style={{ color: COLORS.inkLight }}>·</span>
+                <span className="tabular-nums" style={{ color: COLORS.ink }}>{phasePct.toFixed(1)}%</span>
               </div>
               <button
                 onClick={toggleDark}
-                className="w-9 h-9 flex items-center justify-center rounded-lg border"
-                style={{ borderColor: COLORS.border, backgroundColor: COLORS.cream }}
+                className="w-9 h-9 flex items-center justify-center rounded-full border transition-colors"
+                style={{ borderColor: COLORS.border, backgroundColor: COLORS.paper }}
                 aria-label={dark ? 'Passer en mode clair' : 'Passer en mode sombre'}
               >
                 {dark
                   ? <Sun className="w-4 h-4" style={{ color: COLORS.sand }} />
-                  : <Moon className="w-4 h-4" style={{ color: COLORS.inkLight }} />
-                }
+                  : <Moon className="w-4 h-4" style={{ color: COLORS.inkLight }} />}
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Tabs — single responsive bar */}
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-10">
-          <nav className="flex border-t overflow-x-auto scrollbar-hide" style={{ borderColor: COLORS.border }}>
-            {TABS.map((t) => {
-              const Icon = t.icon;
-              const active = tab === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setTab(t.id)}
-                  className="relative flex-1 sm:flex-none px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 whitespace-nowrap"
-                  style={{
-                    color: active ? COLORS.ink : COLORS.inkLight,
-                    fontWeight: active ? 500 : 400,
-                  }}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="sm:hidden">{t.shortLabel}</span>
-                  <span className="hidden sm:inline">{t.label}</span>
-                  {active && (
-                    <div
-                      className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full"
-                      style={{ backgroundColor: COLORS.sand, boxShadow: `0 1px 8px ${COLORS.sand}` }}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
+          {/* Pill nav */}
+          <div className="pb-3 sm:pb-4">
+            <nav className="nav-track flex gap-1 overflow-x-auto scrollbar-hide">
+              {TABS.map((t) => {
+                const Icon = t.icon;
+                const active = tab === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setTab(t.id)}
+                    data-active={active}
+                    className="nav-pill flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-[13px] font-semibold flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="sm:hidden">{t.shortLabel}</span>
+                    <span className="hidden sm:inline">{t.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
         </div>
       </header>
 
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 lg:py-12">
-        <div className="animate-fade-in">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-7 sm:py-10 lg:py-12">
+        <div key={tab} className="animate-fade-in">
           <ActiveView />
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t mt-12 sm:mt-20" style={{ backgroundColor: COLORS.paper, borderColor: COLORS.border }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <footer className="border-t mt-14 sm:mt-20" style={{ borderColor: COLORS.border }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-7 sm:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="text-[10px] sm:text-xs" style={{ color: COLORS.inkLight, lineHeight: 1.6 }}>
             Ce document est un rapport d'analyse factuel et ne constitue pas un conseil en investissement
             personnalisé au sens AMF.
             <br />
             Les performances passées ne préjugent pas des performances futures.
           </div>
-          <div className="text-[10px] uppercase tracking-[0.2em] font-medium flex-shrink-0" style={{ color: COLORS.sand }}>
-            Version 4 · 29 mai 2026
+          <div className="text-[10px] uppercase tracking-[0.2em] font-semibold flex-shrink-0" style={{ color: COLORS.sand }}>
+            Omaad Intelligence · v2026
           </div>
         </div>
       </footer>

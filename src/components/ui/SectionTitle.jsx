@@ -1,23 +1,25 @@
 import { COLORS } from '../../theme/colors';
 
-export default function SectionTitle({ number, title, subtitle }) {
+export default function SectionTitle({ number, title, subtitle, eyebrow }) {
   return (
-    <div className="mb-8 pb-4 border-b" style={{ borderColor: COLORS.border }}>
-      <div className="flex items-baseline gap-4">
-        {number && (
-          <span
-            className="text-xs uppercase tracking-[0.2em] font-medium"
-            style={{ color: COLORS.sand }}
-          >
-            {number}
-          </span>
-        )}
-        <h2 className="text-2xl sm:text-3xl font-normal font-serif" style={{ color: COLORS.ink }}>
-          {title}
-        </h2>
-      </div>
+    <div className="mb-6 sm:mb-8">
+      {(eyebrow || number) && (
+        <div
+          className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-semibold mb-3"
+          style={{ color: COLORS.sand }}
+        >
+          <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.sand }} />
+          {eyebrow || `Section ${number}`}
+        </div>
+      )}
+      <h2
+        className="text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold leading-[1.05]"
+        style={{ color: COLORS.ink, letterSpacing: '-0.035em' }}
+      >
+        {title}
+      </h2>
       {subtitle && (
-        <p className="mt-3 text-sm max-w-3xl" style={{ color: COLORS.inkMid, lineHeight: 1.6 }}>
+        <p className="mt-4 text-sm sm:text-[15px] max-w-3xl" style={{ color: COLORS.inkMid, lineHeight: 1.65 }}>
           {subtitle}
         </p>
       )}

@@ -137,7 +137,7 @@ export default function TrajectoireView() {
   return (
     <div className="space-y-8 sm:space-y-12">
       <SectionTitle
-        number="I·bis"
+        eyebrow="Trajectoire"
         title="Trajectoire court terme"
         subtitle="La projection court terme rend tangible la progression vers le palier 20 000 € — sortie de la phase 1 et entrée dans la phase de structuration."
       />

@@ -77,7 +77,7 @@ export default function DCAView() {
   return (
     <div className="space-y-8 sm:space-y-12">
       <SectionTitle
-        number="III"
+        eyebrow="Plan DCA"
         title="Plan DCA opérationnel"
         subtitle="Calendrier des 12 prochains mois — 400 €/mois. ESE redevient un destinataire légitime du DCA : le S&P 500 est le cœur assumé du portefeuille."
       />

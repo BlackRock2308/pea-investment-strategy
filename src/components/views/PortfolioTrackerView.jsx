@@ -1,6 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { RefreshCw, TrendingUp, TrendingDown, Clock, Wifi, WifiOff, AlertCircle } from 'lucide-react';
-import { COLORS, colorWithAlpha } from '../../theme/colors';
+import { RefreshCw, TrendingUp, TrendingDown, Clock, Wifi, WifiOff, AlertCircle, PieChart as PieIcon, Scale } from 'lucide-react';
+import { COLORS } from '../../theme/colors';
 import { fmtEur } from '../../utils/formatters';
 import { useState, useEffect } from 'react';
 import usePortfolio from '../../hooks/usePortfolio';
@@ -9,6 +9,8 @@ import useCashBalance from '../../hooks/useCashBalance';
 import Card from '../ui/Card';
 import StatBlock from '../ui/StatBlock';
 import SectionTitle from '../ui/SectionTitle';
+import HeroCard from '../ui/HeroCard';
+import DeltaPill from '../ui/DeltaPill';
 import CustomTooltip from '../ui/CustomTooltip';
 
 function formatTime(date) {
@@ -88,141 +90,129 @@ export default function PortfolioTrackerView() {
 
   const marketState = holdings[0]?.marketState;
 
-  return (
-    <div className="space-y-8 sm:space-y-12">
-      <SectionTitle
-        number="Live"
-        title="Portefeuille en temps réel"
-        subtitle="Suivi automatique de la valeur de vos ETF basé sur les cours Boursorama (rafraîchi toutes les 5 min). Entrez vos parts ; les cours sont remplaçables manuellement."
-      />
+  const latentePositive = totals.totalUnrealizedPL >= 0;
+  const dailyPositive = totals.totalDailyPL >= 0;
 
-      {/* Status bar */}
-      <div
-        className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-lg text-xs"
-        style={{ backgroundColor: colorWithAlpha(COLORS.navy, 0.05), border: `1px solid ${COLORS.border}` }}
-      >
-        <div className="flex items-center gap-4">
-          {hasPrices ? (
-            <span className="flex items-center gap-1.5" style={{ color: COLORS.forest }}>
-              <Wifi className="w-3.5 h-3.5" /> Connecté
-            </span>
-          ) : (
-            <span className="flex items-center gap-1.5" style={{ color: COLORS.rust }}>
-              <WifiOff className="w-3.5 h-3.5" /> Hors ligne
-            </span>
-          )}
-          <MarketStateIndicator state={marketState} />
-          {lastUpdated && (
-            <span className="flex items-center gap-1 tabular-nums" style={{ color: COLORS.inkLight }}>
-              <Clock className="w-3 h-3" /> {formatTime(lastUpdated)}
-            </span>
-          )}
+  return (
+    <div className="space-y-7 sm:space-y-9">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+        <SectionTitle
+          eyebrow="Portefeuille Live"
+          title="Portefeuille en temps réel"
+          subtitle="Suivi automatique de la valeur de vos ETF basé sur les cours Boursorama (rafraîchi toutes les 5 min). Entrez vos parts ; les cours sont remplaçables manuellement."
+        />
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-3 px-3.5 py-2 rounded-full" style={{ backgroundColor: COLORS.paper, boxShadow: 'var(--shadow-soft)' }}>
+            {hasPrices ? (
+              <span className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: COLORS.forest }}>
+                <Wifi className="w-3.5 h-3.5" /> Connecté
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: COLORS.rust }}>
+                <WifiOff className="w-3.5 h-3.5" /> Hors ligne
+              </span>
+            )}
+            <span style={{ color: COLORS.border }}>|</span>
+            <MarketStateIndicator state={marketState} />
+            {lastUpdated && (
+              <span className="hidden sm:flex items-center gap-1 tabular-nums text-xs" style={{ color: COLORS.inkLight }}>
+                <Clock className="w-3 h-3" /> {formatTime(lastUpdated)}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={refreshPrices}
+            disabled={loading}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold transition-opacity"
+            style={{ backgroundColor: COLORS.navy, color: '#fff', opacity: loading ? 0.6 : 1 }}
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            Actualiser
+          </button>
         </div>
-        <button
-          onClick={refreshPrices}
-          disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-opacity"
-          style={{ backgroundColor: COLORS.navy, color: COLORS.cream, opacity: loading ? 0.6 : 1 }}
-        >
-          <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
-          Actualiser
-        </button>
       </div>
 
       {error && (
-        <div
-          className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm"
-          style={{ backgroundColor: colorWithAlpha(COLORS.rust, 0.08), color: COLORS.rust }}
-        >
+        <div className="flex items-center gap-2 px-4 py-3 rounded-inner text-sm" style={{ backgroundColor: COLORS.negBg, color: COLORS.rust }}>
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           {error}
         </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-px" style={{ backgroundColor: COLORS.border }}>
-        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock
-            label="Évaluation titres"
-            value={hasShares ? fmtEur(Math.round(totals.totalValue)) : '—'}
-            sub={hasShares ? `Total PEA ${fmtEur(Math.round(totalPEA))}` : null}
-            large
-            accent={COLORS.ink}
-          />
-        </div>
-        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <div className="text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>
-            Solde espèces
+      {/* Hero — live valuation */}
+      <HeroCard
+        eyebrow="Évaluation titres"
+        value={hasShares ? fmtEur(Math.round(totals.totalValue)) : '—'}
+        sub={hasShares ? `Total PEA ${fmtEur(Math.round(totalPEA))} · Cumul versements ${fmtEur(Math.round(totalDeposited))}` : 'Entrez vos parts ci-dessous'}
+        badge={showUnrealized ? <DeltaPill positive={latentePositive} size="lg">{latentePositive ? '+' : ''}{totals.totalUnrealizedPLPct.toFixed(2)} %</DeltaPill> : null}
+      >
+        {showUnrealized && (
+          <div className="flex lg:flex-col gap-6 lg:gap-3 lg:items-end">
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.16em] font-semibold" style={{ color: COLORS.heroInkDim }}>+/- Latente</div>
+              <div className="text-xl font-extrabold tabular-nums mt-1" style={{ color: latentePositive ? '#7BD9B4' : '#F0A29A' }}>
+                {latentePositive ? '+' : ''}{fmtEur(Math.round(totals.totalUnrealizedPL))}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.16em] font-semibold" style={{ color: COLORS.heroInkDim }}>P&L du jour</div>
+              <div className="text-xl font-extrabold tabular-nums mt-1" style={{ color: dailyPositive ? '#7BD9B4' : '#F0A29A' }}>
+                {dailyPositive ? '+' : ''}{fmtEur(Math.round(totals.totalDailyPL))} · {dailyPositive ? '+' : ''}{totals.totalDailyPLPct.toFixed(2)}%
+              </div>
+            </div>
           </div>
-          <div className="mt-2 flex items-baseline gap-1">
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={cashDraft}
-              onChange={(e) => setCashDraft(e.target.value)}
-              onBlur={() => setCashBalance(cashDraft)}
+        )}
+      </HeroCard>
+
+      {/* Editable KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        <Card padding="p-5" hover>
+          <StatBlock label="Évaluation titres" value={hasShares ? fmtEur(Math.round(totals.totalValue)) : '—'} sub={`${holdings.length} ETF UCITS`} large />
+        </Card>
+        <Card padding="p-5" hover>
+          <div className="text-[10px] uppercase tracking-[0.16em] font-semibold mb-2.5" style={{ color: COLORS.inkLight }}>Solde espèces</div>
+          <div className="flex items-baseline gap-1">
+            <input type="number" min="0" step="0.01" value={cashDraft}
+              onChange={(e) => setCashDraft(e.target.value)} onBlur={() => setCashBalance(cashDraft)}
               onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
-              className="w-24 sm:w-28 text-2xl sm:text-3xl font-light tabular-nums bg-transparent border-b focus:outline-none"
-              style={{ color: COLORS.ink, borderColor: COLORS.border }}
-            />
-            <span className="text-lg" style={{ color: COLORS.inkLight }}>€</span>
+              className="w-24 sm:w-28 text-[26px] sm:text-4xl font-extrabold tabular-nums bg-transparent border-b focus:outline-none"
+              style={{ color: COLORS.ink, borderColor: COLORS.border, letterSpacing: '-0.03em' }} />
+            <span className="text-lg font-semibold" style={{ color: COLORS.inkLight }}>€</span>
           </div>
-          <div className="text-[10px] mt-1" style={{ color: COLORS.inkLight }}>
-            Cash non investi · modifiable
-          </div>
-        </div>
-        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <div className="text-[10px] uppercase tracking-wider font-medium" style={{ color: COLORS.inkLight }}>
-            Cumul versements
-          </div>
-          <div className="mt-2 flex items-baseline gap-1">
-            <input
-              type="number"
-              min="0"
-              step="1"
-              value={depositedDraft}
-              onChange={(e) => setDepositedDraft(e.target.value)}
-              onBlur={() => setTotalDeposited(depositedDraft)}
+          <div className="text-xs mt-2.5 font-medium" style={{ color: COLORS.inkMid }}>Cash non investi · modifiable</div>
+        </Card>
+        <Card padding="p-5" hover>
+          <div className="text-[10px] uppercase tracking-[0.16em] font-semibold mb-2.5" style={{ color: COLORS.inkLight }}>Cumul versements</div>
+          <div className="flex items-baseline gap-1">
+            <input type="number" min="0" step="1" value={depositedDraft}
+              onChange={(e) => setDepositedDraft(e.target.value)} onBlur={() => setTotalDeposited(depositedDraft)}
               onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
-              className="w-24 sm:w-28 text-2xl sm:text-3xl font-light tabular-nums bg-transparent border-b focus:outline-none"
-              style={{ color: COLORS.ink, borderColor: COLORS.border }}
-            />
-            <span className="text-lg" style={{ color: COLORS.inkLight }}>€</span>
+              className="w-24 sm:w-28 text-[26px] sm:text-4xl font-extrabold tabular-nums bg-transparent border-b focus:outline-none"
+              style={{ color: COLORS.ink, borderColor: COLORS.border, letterSpacing: '-0.03em' }} />
+            <span className="text-lg font-semibold" style={{ color: COLORS.inkLight }}>€</span>
           </div>
-          <div className="text-[10px] mt-1" style={{ color: COLORS.inkLight }}>
-            Cash déposé sur le PEA · modifiable
-          </div>
-        </div>
-        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock
-            label="+/- Latente"
-            value={showUnrealized ? `${totals.totalUnrealizedPL >= 0 ? '+' : ''}${fmtEur(Math.round(totals.totalUnrealizedPL))}` : '—'}
-            sub={showUnrealized ? `${totals.totalUnrealizedPL >= 0 ? '+' : ''}${totals.totalUnrealizedPLPct.toFixed(2)} %` : null}
-            accent={totals.totalUnrealizedPL >= 0 ? COLORS.forest : COLORS.rust}
-            large
-          />
-        </div>
-        <div style={{ backgroundColor: COLORS.paper }} className="p-4 sm:p-6">
-          <StatBlock
-            label="P&L du jour"
-            value={hasShares ? `${totals.totalDailyPL >= 0 ? '+' : ''}${fmtEur(Math.round(totals.totalDailyPL))}` : '—'}
-            sub={hasShares ? `${totals.totalDailyPLPct >= 0 ? '+' : ''}${totals.totalDailyPLPct.toFixed(2)} %` : null}
-            accent={totals.totalDailyPL >= 0 ? COLORS.forest : COLORS.rust}
-            large
-          />
-        </div>
+          <div className="text-xs mt-2.5 font-medium" style={{ color: COLORS.inkMid }}>Cash déposé · modifiable</div>
+        </Card>
+        <Card padding="p-5" hover>
+          <StatBlock label="P&L du jour"
+            value={hasShares ? `${dailyPositive ? '+' : ''}${fmtEur(Math.round(totals.totalDailyPL))}` : '—'}
+            sub={hasShares ? `${dailyPositive ? '+' : ''}${totals.totalDailyPLPct.toFixed(2)} %` : null}
+            accent={hasShares ? (dailyPositive ? COLORS.forest : COLORS.rust) : COLORS.ink} large />
+        </Card>
       </div>
 
       {/* Shares input + live prices table */}
       <Card padding="p-0">
-        <div className="px-5 sm:px-8 pt-5 sm:pt-8 pb-4">
-          <h3 className="text-lg sm:text-xl font-normal font-serif" style={{ color: COLORS.ink }}>
+        <div className="px-5 sm:px-8 pt-5 sm:pt-7 pb-4 flex items-center gap-3">
+          <span className="icon-chip"><Scale className="w-4 h-4" /></span>
+          <div>
+          <h3 className="text-lg font-bold" style={{ color: COLORS.ink, letterSpacing: '-0.02em' }}>
             Détail des positions
           </h3>
-          <p className="text-xs mt-1" style={{ color: COLORS.inkLight }}>
+          <p className="text-xs mt-0.5" style={{ color: COLORS.inkLight }}>
             Parts et prix de revient sont modifiables. La +/- latente est calculée comme (Cours − Px. Revient) × Parts.
           </p>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -405,12 +395,12 @@ export default function PortfolioTrackerView() {
           {/* Actual allocation donut */}
           <Card>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-1 h-6" style={{ backgroundColor: COLORS.navy }} />
-              <h3 className="text-lg font-normal font-serif" style={{ color: COLORS.ink }}>
+              <span className="icon-chip"><PieIcon className="w-4 h-4" /></span>
+              <h3 className="text-lg font-bold" style={{ color: COLORS.ink, letterSpacing: '-0.02em' }}>
                 Allocation actuelle
               </h3>
             </div>
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={230}>
               <PieChart>
                 <Pie
                   data={allocationData}
@@ -418,30 +408,31 @@ export default function PortfolioTrackerView() {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
-                  innerRadius={45}
-                  paddingAngle={2}
-                  label={({ name, value }) => {
+                  outerRadius={85}
+                  innerRadius={52}
+                  paddingAngle={3}
+                  cornerRadius={5}
+                  label={({ value }) => {
                     const total = allocationData.reduce((s, d) => s + d.value, 0);
                     return `${((value / total) * 100).toFixed(0)}%`;
                   }}
                   labelLine={false}
                 >
                   {allocationData.map((e, i) => (
-                    <Cell key={i} fill={e.color} />
+                    <Cell key={i} fill={e.color} stroke="var(--color-paper)" strokeWidth={2} />
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="mt-4 space-y-2">
+            <div className="mt-5 space-y-1">
               {holdings.filter((h) => h.currentValue > 0).map((h) => (
-                <div key={h.id} className="flex items-center justify-between text-sm py-1.5 border-b last:border-0" style={{ borderColor: COLORS.border }}>
+                <div key={h.id} className="flex items-center justify-between text-sm py-2 border-b last:border-0" style={{ borderColor: COLORS.border }}>
                   <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 flex-shrink-0" style={{ backgroundColor: h.color }} />
-                    <span style={{ color: COLORS.inkMid }}>{h.label}</span>
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: h.color }} />
+                    <span className="font-medium" style={{ color: COLORS.ink }}>{h.label}</span>
                   </div>
-                  <span className="tabular-nums font-medium ml-2" style={{ color: COLORS.ink }}>
+                  <span className="tabular-nums font-bold ml-2" style={{ color: COLORS.ink }}>
                     {fmtEur(Math.round(h.currentValue))}
                   </span>
                 </div>
@@ -452,8 +443,8 @@ export default function PortfolioTrackerView() {
           {/* Deviation from target */}
           <Card>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-1 h-6" style={{ backgroundColor: COLORS.sand }} />
-              <h3 className="text-lg font-normal font-serif" style={{ color: COLORS.ink }}>
+              <span className="icon-chip"><Scale className="w-4 h-4" /></span>
+              <h3 className="text-lg font-bold" style={{ color: COLORS.ink, letterSpacing: '-0.02em' }}>
                 Écart vs. cible
               </h3>
             </div>

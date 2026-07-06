@@ -6,7 +6,7 @@ export default function CustomTooltip({ active, payload, label }) {
 
   return (
     <div
-      className="px-4 py-3 rounded-lg border"
+      className="px-4 py-3 rounded-xl border"
       style={{
         backgroundColor: COLORS.paper,
         borderColor: COLORS.border,

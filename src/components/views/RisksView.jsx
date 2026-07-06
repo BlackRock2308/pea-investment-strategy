@@ -53,7 +53,7 @@ export default function RisksView() {
   return (
     <div className="space-y-8 sm:space-y-12">
       <SectionTitle
-        number="V"
+        eyebrow="Risques & IPS"
         title="Risques & Investment Policy Statement"
         subtitle="Cartographie macro 2026–2027 et règles d'investissement personnalisées. L'IPS constitue la première défense contre tes propres biais comportementaux."
       />

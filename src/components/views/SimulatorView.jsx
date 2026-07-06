@@ -53,7 +53,7 @@ export default function SimulatorView() {
   return (
     <div className="space-y-8 sm:space-y-12">
       <SectionTitle
-        number="II"
+        eyebrow="Simulateur"
         title="Simulateur de projection"
         subtitle={`Ajuste les paramètres pour visualiser l'effet de la capitalisation composée sur ton PEA. Portefeuille de départ ${fmtEur(Math.round(totalDeposited))}.`}
       />

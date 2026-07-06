@@ -176,7 +176,7 @@ export default function StocksView() {
   return (
     <div className="space-y-8 sm:space-y-12">
       <SectionTitle
-        number="IV"
+        eyebrow="Actions dividendes"
         title="Poche actions dividendes"
         subtitle="En phase 1, focus sur 2–3 lignes maximum. Les fiches détaillées des 8 valeurs restent disponibles pour la phase 2."
       />
